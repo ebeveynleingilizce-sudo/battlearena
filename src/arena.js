@@ -71,6 +71,8 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  riverShape.closePath();const river=mesh(new THREE.ShapeGeometry(riverShape),0x4c9ead,0,-.075,0);
  river.rotation.x=-Math.PI/2;river.castShadow=false;
  const bridge=assets.instance(models.bridge,.6).root;
+ bridge.children[0].rotation.y=Math.PI/2;
+ bridge.updateMatrixWorld(true);
  const bridgeSize=new THREE.Box3().setFromObject(bridge).getSize(new THREE.Vector3());
  bridge.scale.x*=4.2/bridgeSize.x;bridge.scale.z*=7.8/bridgeSize.z;
  bridge.position.set(0,-.32,0);scene.add(bridge);
