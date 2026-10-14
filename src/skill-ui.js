@@ -9,7 +9,7 @@ export function createSkillUI(simulation,audio,player) {
     icons:get(`skills-${team}`),badge:get(`pending-${team}`)}));
   let signature='',noticeUntil=0;
   const iconSignatures=['',''];
-  function notify(message){notice.textContent=message;notice.hidden=false;noticeUntil=performance.now()+2400;}
+  function notify(message){notice.textContent=message;notice.hidden=false;noticeUntil=performance.now()+1800;}
   cards.addEventListener('click',event=>{
     const button=event.target.closest('[data-skill-id]');
     if(!button || button.disabled)return;
@@ -53,7 +53,7 @@ export function createSkillUI(simulation,audio,player) {
         if(event.type==='level-up'){
           if(event.team===player.team)notify(`LEVEL UP! ${event.team===0?'Mavi':'Kırmızı'} takım · Level ${event.level}`);
         }
-        if(event.type==='skill-selected'&&event.team===player.team)notify(`${event.automatic?'Süre doldu · Otomatik seçim: ':''}${SKILL_BY_ID[event.skillID].name} · Lv ${event.rank}`);
+        if(event.type==='skill-selected')notify(`${event.team===0?'Mavi':'Kırmızı'} · ${SKILL_BY_ID[event.skillID].name} ${event.rank}`);
         if(event.type==='command-result' && !event.accepted){signature='';notify(`Seçim reddedildi: ${event.reason}`);}
       }
     },

@@ -39,6 +39,20 @@ export class BattleEffects {
     this.up = new THREE.Vector3(0, 1, 0);
     this.direction = new THREE.Vector3();
     this.elapsed=0;
+    this.fireBulletMaterial=new THREE.MeshBasicMaterial({color:0xffac52});
+    this.heavyBulletMaterial=new THREE.MeshBasicMaterial({color:0xffdf86});
+    this.pulseGeometry=new THREE.IcosahedronGeometry(1,1);
+    this.pulses=Array.from({length:24},()=>{
+      const mesh=new THREE.Mesh(this.pulseGeometry,new THREE.MeshBasicMaterial({color:0x8bd8ff,wireframe:true,transparent:true,opacity:0,depthWrite:false}));
+      mesh.visible=false;scene.add(mesh);return {mesh,time:0,duration:0,size:1};
+    });
+    this.healTextTimes=new Map();
+    this.labels=Array.from({length:16},()=>{
+      const canvas=document.createElement('canvas');canvas.width=128;canvas.height=48;
+      const texture=new THREE.CanvasTexture(canvas);
+      const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false}));
+      sprite.visible=false;scene.add(sprite);return {canvas,texture,sprite,time:0};
+    });
   }
 
   async loadTextures(){
@@ -71,9 +85,31 @@ export class BattleEffects {
   }
 
   heal(event){
+    if(this.elapsed-(this.healTextTimes.get(event.unitID)??-Infinity)>.6){
+      this.healTextTimes.set(event.unitID,this.elapsed);
+      this.hpText(event.x,event.z,event.amount);
+      for(let i=0;i<3;i++){const a=i*Math.PI*2/3;this.flash(event.x,1,event.z,.07,.4,Math.cos(a)*.5,Math.sin(a)*.5,this.healMaterial);}
+    }
     this.flash(event.x,1.8,event.z,.15,.32,0,0,this.healMaterial);
     const slot=this.heals.find(item=>!item.sprite.visible);if(!slot)return;
     slot.sprite.position.set(event.x,1,event.z);slot.sprite.scale.set(1.7,1.7,1);slot.sprite.visible=true;slot.time=.45;
+  }
+
+  hpText(x,z,amount,y=2.1){
+    if(!(amount>0))return;
+    const slot=this.labels.find(item=>!item.sprite.visible);if(!slot)return;
+    const ctx=slot.canvas.getContext('2d');ctx.clearRect(0,0,128,48);
+    ctx.font='bold 26px Segoe UI';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='#142f23';ctx.fillStyle='#b2ffb4';
+    const value=amount<.1?'<0.1':Number(amount.toFixed(1));
+    const text=`+${value} HP`;ctx.strokeText(text,64,33);ctx.fillText(text,64,33);
+    slot.texture.needsUpdate=true;slot.sprite.position.set(x,y,z);slot.sprite.scale.set(1.6,.6,1);
+    slot.sprite.material.opacity=1;slot.sprite.visible=true;slot.time=.8;
+  }
+
+  pulse(x,z,color,size=1,y=1){
+    const slot=this.pulses.find(item=>!item.mesh.visible);if(!slot)return;
+    Object.assign(slot,{time:.65,duration:.65,size});slot.mesh.material.color.setHex(color);
+    slot.mesh.position.set(x,y,z);slot.mesh.scale.setScalar(size);slot.mesh.visible=true;
   }
 
   levelUp(base){
@@ -96,8 +132,8 @@ export class BattleEffects {
       const mesh = this.bullets[p.id];
       mesh.visible = p.active;
       if (!p.active) continue;
-      mesh.material = this.materials[p.team+(p.second?2:0)];
-      mesh.scale.setScalar(p.second?1.15:1);
+      mesh.material=p.burnDamage>0?this.fireBulletMaterial:p.damage>simulation.config.damage?this.heavyBulletMaterial:this.materials[p.team+(p.second?2:0)];
+      mesh.scale.setScalar(Math.min(1.7,p.damage/simulation.config.damage)*(p.second?1.1:1));
       mesh.position.set(p.previousX + (p.x - p.previousX) * alpha, 1.15,
         p.previousZ + (p.z - p.previousZ) * alpha);
       this.direction.set(p.x - p.previousX, 0, p.z - p.previousZ);
@@ -118,6 +154,16 @@ export class BattleEffects {
       slot.sprite.position.y+=dt*.6;slot.sprite.scale.setScalar(Math.max(0,slot.time/.45)*1.7);
       if(slot.time<=0)slot.sprite.visible=false;
     }
+    for(const slot of this.pulses){
+      if(!slot.mesh.visible)continue;slot.time-=dt;
+      const ratio=Math.max(0,slot.time/slot.duration);slot.mesh.material.opacity=ratio*.45;
+      slot.mesh.scale.setScalar(slot.size*(1+(1-ratio)*.2));if(slot.time<=0)slot.mesh.visible=false;
+    }
+    for(const slot of this.labels){
+      if(!slot.sprite.visible)continue;slot.time-=dt;slot.sprite.position.y+=dt*.6;
+      slot.sprite.material.opacity=Math.min(1,Math.max(0,slot.time/.25));if(slot.time<=0)slot.sprite.visible=false;
+    }
+    for(const [id,time] of this.healTextTimes)if(this.elapsed-time>2)this.healTextTimes.delete(id);
   }
 
   clear() {
@@ -126,9 +172,15 @@ export class BattleEffects {
     for(const slot of this.lightning){slot.line.visible=false;slot.time=0;}
     for(const slot of this.heals){slot.sprite.visible=false;slot.time=0;}
     this.elapsed=0;
+    this.healTextTimes.clear();
+    for(const slot of this.pulses)slot.mesh.visible=false;
+    for(const slot of this.labels)slot.sprite.visible=false;
   }
 
   dispose() {
+    for(const slot of this.pulses){this.scene.remove(slot.mesh);slot.mesh.material.dispose();}
+    for(const slot of this.labels){this.scene.remove(slot.sprite);slot.sprite.material.dispose();slot.texture.dispose();}
+    this.pulseGeometry.dispose();this.fireBulletMaterial.dispose();this.heavyBulletMaterial.dispose();
     for (const mesh of this.bullets) this.scene.remove(mesh);
     for (const slot of this.flashes) this.scene.remove(slot.mesh);
     for(const slot of this.lightning){this.scene.remove(slot.line);slot.line.geometry.dispose();}

@@ -423,3 +423,41 @@ body:has(.learning-docks > .selection-dock:not([hidden])) footer{bottom:calc(42d
  .learning-docks #skill-cards .skill-card-copy>span{font-size:10px!important}
  .player-strip{display:none!important}
 }
+
+/* Quiet combat HUD: primary state first, secondary progression stays subdued. */
+.team-label{width:156px!important;padding:8px 10px!important;top:10px!important;border-radius:8px;background:#193024dd!important}
+.team-label strong{font-size:13px!important;margin:3px 0!important}
+.team-label small{font-size:8px!important;letter-spacing:1px}
+.team-label>span{font-size:10px!important}.team-label .hp-track{height:4px;margin:6px 0}
+.team-label .xp-heading{margin-top:5px;opacity:.55}.team-label .xp-heading b,.team-label .xp-heading span{font-size:8px!important}
+.team-label .xp-track{height:2px;opacity:.45}.team-label .pending-badge{display:none!important}
+.team-label .active-skills{gap:3px;max-height:18px!important;margin-top:5px}
+.team-label .active-skill{width:16px;height:16px}.team-label .active-skill b{font-size:6px;min-width:8px}
+.player-strip{padding:5px 12px!important;min-width:0!important;border-width:1px!important;box-shadow:none!important}
+.player-strip strong{font-size:10px!important;letter-spacing:.6px}
+.match-clock{top:40px!important}.match-clock strong{font-size:22px!important;font-weight:600}
+#base-protection{top:66px!important;font-size:8px;opacity:.7}
+#skill-notice{position:fixed!important;left:14px!important;right:auto;top:145px!important;bottom:auto!important;
+ transform:none!important;max-width:210px!important;white-space:normal;font-size:11px!important;font-weight:600;
+ padding:7px 10px!important;border-radius:7px;box-shadow:none;pointer-events:none}
+.learning-docks{width:min(860px,calc(100vw - 24px))!important}
+.learning-docks>.question-panel,.learning-docks>.selection-dock{padding:11px 14px!important;box-shadow:0 8px 20px #07150b60!important}
+.learning-docks .question-panel h2,.learning-docks .selection-dock h2{font-size:18px!important}
+.learning-docks #skill-cards .skill-card{min-height:92px!important}
+.learning-docks .question-panel[data-outcome="correct"]{animation:answer-positive .35s ease-out}
+.learning-docks .question-panel[data-outcome="wrong"],.learning-docks .question-panel[data-outcome="timeout"]{animation:answer-correction .35s ease-out}
+@keyframes answer-positive{0%{border-color:#bdeda2;box-shadow:0 0 18px #8bd58670}100%{border-color:#a79c6c}}
+@keyframes answer-correction{0%{border-color:#edab89}100%{border-color:#a79c6c}}
+body .app>footer,body:has(.learning-docks > .question-panel:not([hidden])) footer,
+body:has(.learning-docks > .selection-dock:not([hidden])) footer{top:145px!important;bottom:auto!important;right:14px!important}
+.footer-actions button{font-size:9px!important;padding:5px 8px!important;opacity:.8}
+@media(max-width:700px){
+ .team-label{width:122px!important;padding:6px 8px!important}.team-label strong{font-size:11px!important}
+ .team-label .active-skills{display:none}.match-clock{top:12px!important}.match-clock strong{font-size:18px!important}
+ #skill-notice{top:116px!important;max-width:170px!important;font-size:10px!important}
+ body .app>footer,body:has(.learning-docks > .question-panel:not([hidden])) footer,body:has(.learning-docks > .selection-dock:not([hidden])) footer{top:116px!important;right:8px!important}
+ .learning-docks{width:calc(100vw - 16px)!important}
+ .learning-docks .question-panel h2,.learning-docks .selection-dock h2{font-size:15px!important}
+ .learning-docks #skill-cards .skill-card{min-height:125px!important}
+}
+@media(prefers-reduced-motion:reduce){.learning-docks .question-panel{animation:none!important}}

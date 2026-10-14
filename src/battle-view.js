@@ -4,6 +4,7 @@ import { BattleEffects } from './effects.js';
 const WEAPONS = new Set(['AK','GrenadeLauncher','Knife_1','Knife_2','Pistol','Revolver',
   'Revolver_Small','RocketLauncher','ShortCannon','Shotgun','Shovel','SMG','Sniper','Sniper_2']);
 const CLIPS = { Idle: 'Idle', Run: 'Run', Shoot: 'Idle_Shoot', HitReact: 'HitReact', Death: 'Death' };
+const SKILL_COLORS={'rapid-fire':0xffe7a0,'heavy-bullets':0xffba83,'iron-army':0x86c4ff,'double-shot':0xc1a7ff,'fire-bullets':0xffa167,'life-steal':0xa7e8ba,'chain-lightning':0x86e9ef};
 
 export class BattleView {
   static async create(scene, assets, arena, config, panel) {
@@ -34,6 +35,11 @@ export class BattleView {
     this.inverseRotation = new THREE.Quaternion();
     this.lab = { enabled: false, mode: 'Auto', time: 0 };
     this.shots = [];
+    this.decisions=[];
+    for(const base of arena.bases){
+      base.hitMaterials=[];
+      base.tower.traverse(node=>{if(!node.isMesh)return;node.material=node.material.clone();if(node.material.emissive)base.hitMaterials.push(node.material);});
+    }
   }
 
   acquire(unit) {
@@ -112,11 +118,11 @@ export class BattleView {
         this.effects.impact(event);
         if (event.base) this.arena.bases[Number(event.targetID.slice(-1))].flash = 0.3;
       }
-      if (event.type === 'shot') this.shots.push(event.unitID);
+      if (event.type === 'shot') this.shots.push(event);
       if(event.type==='lightning')this.effects.chain(event);
       if(event.type==='heal')this.effects.heal(event);
       if(event.type==='level-up')this.effects.levelUp(this.arena.bases[event.team]);
-      if(event.type==='skill-selected')this.effects.levelUp(this.arena.bases[event.team]);
+      if(['skill-selected','question-bonus','spawn'].includes(event.type))this.decisions.push(event);
     }
   }
 
@@ -146,8 +152,31 @@ export class BattleView {
         actor.root.position.y -= Math.max(0, age - this.config.corpseSeconds + 0.6) * 1.5;
       }
     }
-    for (const id of this.shots) {
-      const actor = this.actors.get(id);
+    for(const event of this.decisions){
+      const base=this.arena.bases[event.team];
+      if(event.type==='skill-selected'){
+        if(event.skillID==='quick-reinforcement')this.effects.pulse(base.x,0,0xe1eca2,1.7,.6);
+        else for(const unit of simulation.units)if(unit.team===event.team&&unit.hp>0){
+          if(['iron-army','life-steal'].includes(event.skillID))this.effects.pulse(unit.x,unit.z,SKILL_COLORS[event.skillID],event.skillID==='iron-army'?.85:.45,1);
+          else {const actor=this.actors.get(unit.id);if(actor?.gun){actor.gun.getWorldPosition(this.temp);this.effects.pulse(this.temp.x,this.temp.z,SKILL_COLORS[event.skillID],.27,this.temp.y);}}
+        }
+      }
+      if(event.type==='question-bonus'){
+        if(event.kind==='repair'){this.effects.hpText(base.x,0,event.amount,3.8);this.effects.pulse(base.x,0,0x85ffab,1.7,1.8);}
+        if(event.kind==='shield')this.effects.pulse(base.x,0,0x86c4ff,2.2,1.5);
+        if(event.kind==='attack')for(const unit of simulation.units)if(unit.team===event.team&&unit.hp>0)this.effects.pulse(unit.x,unit.z,0xffdf86,.45,1);
+      }
+      if(event.type==='spawn'&&simulation.teams[event.team].skills['quick-reinforcement']>0){
+        const unit=simulation.units.find(u=>u.id===event.unitID);if(unit&&unit.hp>0){
+          this.effects.pulse(unit.x,unit.z,0xe1eca2,.6,.5);
+          this.effects.flash(unit.x,.4,unit.z,.08,.3,-.5,0,this.effects.levelMaterial);
+          this.effects.flash(unit.x,.7,unit.z,.08,.3,.5,0,this.effects.levelMaterial);
+        }
+      }
+    }
+    this.decisions.length=0;
+    for (const event of this.shots) {
+      const actor = this.actors.get(event.unitID);
       if (!actor || !actor.gun) continue;
       actor.root.updateMatrixWorld(true);
       const box = actor.gun.geometry?.boundingBox;
@@ -161,7 +190,10 @@ export class BattleView {
           if (dot > best) { best = dot; this.muzzle.copy(this.temp); }
         }
       } else actor.gun.getWorldPosition(this.muzzle);
-      this.effects.flash(this.muzzle.x,this.muzzle.y,this.muzzle.z,0.16,0.1);
+      const projectile=simulation.projectiles[event.projectileID];
+      const material=projectile?.burnDamage>0?this.effects.fireBulletMaterial:projectile?.damage>simulation.config.damage?this.effects.heavyBulletMaterial:this.effects.flashMaterial;
+      const boosted=simulation.teams[event.team].stats.fireRate>simulation.config.fireRate;
+      this.effects.flash(this.muzzle.x,this.muzzle.y,this.muzzle.z,boosted?.21:.16,event.second?.13:.1,0,0,material);
     }
     this.shots.length = 0;
     this.effects.update(simulation, alpha, dt);
@@ -169,7 +201,8 @@ export class BattleView {
       base.flash = Math.max(0, base.flash - dt);
       base.platform.material.emissive.setHex(base.flash > 0 ? 0xffb46a : 0x000000);
       base.platform.material.emissiveIntensity = base.flash * 3;
-      base.tower.position.x = base.x + (base.flash > 0 ? Math.sin(base.flash * 120) * 0.08 : 0);
+      for(const material of base.hitMaterials){material.emissive.setHex(base.flash>0?0xffb46a:0);material.emissiveIntensity=base.flash*1.6;}
+      base.tower.position.x = base.x + (base.flash > 0 ? Math.sin(base.flash * 65) * 0.025 : 0);
     }
     this.panel.state.instances = 22 + this.actors.size;
     this.panel.state.animation = this.lab.enabled ? 'Test' : 'Otomatik savaş';
@@ -179,8 +212,10 @@ export class BattleView {
     for (const id of [...this.actors.keys()]) this.release(id);
     this.effects.clear();
     this.shots.length = 0;
+    this.decisions.length=0;
+    this.decisions.length=0;
     this.lab.time = 0;
-    for (const base of this.arena.bases) { base.flash = 0; base.tower.position.x = base.x; base.platform.material.emissive.setHex(0); }
+    for (const base of this.arena.bases) { base.flash = 0; base.tower.position.x = base.x; base.platform.material.emissive.setHex(0);for(const material of base.hitMaterials)material.emissive.setHex(0); }
   }
 
   dispose() {

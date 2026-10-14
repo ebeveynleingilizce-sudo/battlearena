@@ -150,12 +150,13 @@ export class BattleSimulation {
   }
 
   applyQuestionBonus(team,kind){
+    const hpBefore=this.bases[team].hp;
     const b=this.questions.teams[team].bonuses;
     if(kind==='shield')b.shieldUntil=this.tick+this.ticks(this.config.bonusSeconds);
     if(kind==='attack')b.attackUntil=this.tick+this.ticks(this.config.bonusSeconds);
     if(kind==='reinforcement')this.spawn(team);
     if(kind==='repair')this.bases[team].hp=Math.min(this.config.baseHP,this.bases[team].hp+this.config.repairHP);
-    this.events.push({type:'question-bonus',team,kind});
+    this.events.push({type:'question-bonus',team,kind,amount:kind==='repair'?this.bases[team].hp-hpBefore:0});
   }
 
   grantQuestionBonus(team,preferred){
