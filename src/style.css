@@ -464,17 +464,12 @@ body:has(.learning-docks > .selection-dock:not([hidden])) footer{top:145px!impor
 
 /* Event feedback stays brief and scales with importance. */
 .xp-track>div{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
-.confirmed-skill{z-index:35!important;pointer-events:none!important;margin:0!important;display:flex;align-items:center;gap:10px;
- background:#405b36!important;border:2px solid var(--skill-color)!important;box-shadow:0 0 14px #d1e3a350;
- animation:skill-confirmation .35s ease-out both;overflow:hidden;padding:10px!important;min-height:0!important;max-height:none!important}
-.confirmed-skill img{width:34px;height:34px}.confirmed-skill .skill-card-copy{display:flex;flex-direction:column;font-size:11px;gap:4px}
-@keyframes skill-confirmation{0%{opacity:1;filter:brightness(1.15)}70%{opacity:.9}100%{opacity:0}}
 #result[data-outcome="victory"] .result-card{border-color:var(--winner-color);animation:victory-arrival .55s ease-out both}
 #result[data-outcome="victory"] #result-title{color:var(--winner-color)}
 @keyframes victory-arrival{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){
  .xp-track>div,.hp-track>div{transition:none!important}
- .confirmed-skill,#result .result-card,.question-panel{animation:none!important}
+ #result .result-card,.question-panel{animation:none!important}
  .skill-card,.learning-docks{transition:none!important}
  .skill-card:hover{transform:none!important}
 }
@@ -495,3 +490,6 @@ body:has(.learning-docks > .selection-dock:not([hidden])) footer{top:145px!impor
  .learning-docks .question-panel h2{font-size:15px!important}
  .learning-docks .question-options button{min-height:44px!important;font-size:14px!important}
 }
+
+/* Only one decision panel can occupy the shared dock, even during a team handoff. */
+.learning-docks:has(>#skill-dock:not([hidden]))>#question-panel{display:none!important}
