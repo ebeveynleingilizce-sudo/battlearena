@@ -24,3 +24,44 @@
 .turn-hint{font-size:13px;color:#d0e4e7}
 .question-options button,.skill-card{min-height:56px;touch-action:manipulation}
 @media(max-width:650px){.player-strip strong{font-size:19px}.turn-hint{font-size:11px}.question-options button{min-height:56px}.arena-shell{min-height:230px}}
+
+/* Desktop / smartboard landscape: give the arena the main screen area.
+   Keep decisions in a dedicated right column instead of covering the battle. */
+@media (min-width: 1001px) and (min-aspect-ratio: 5/4) {
+  .app {max-width: 1920px;padding: 14px 22px 28px;}
+  header {margin-bottom: 10px;}
+  .player-strip {margin-bottom: 10px;padding: 8px 14px;}
+  .battle-layout,.battle-layout:has(.selection-dock:not([hidden])) {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) clamp(310px,25vw,410px);
+    align-items: stretch;
+    gap: 14px;
+  }
+  .arena-shell {
+    height: clamp(490px, calc(100dvh - 185px), 920px);
+    max-height: none;
+    min-height: 0;
+  }
+  .learning-docks {
+    position: static;
+    transform: none;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: clamp(490px, calc(100dvh - 185px), 920px);
+  }
+  .question-panel,.selection-dock {
+    max-height: 100%;
+    overflow: auto;
+    flex: 1;
+    padding: 18px;
+  }
+  .question-panel {min-height: 0;}
+  .question-options {grid-template-columns: repeat(2,minmax(0,1fr));}
+  .question-options button {min-height: 66px;font-size: 16px;}
+  #skill-cards {grid-template-columns: 1fr;}
+  .skill-card {flex-direction: row;min-height: 78px;}
+  .skill-card img {width: 44px;height: 44px;}
+  footer {padding: 12px 0;}
+}
