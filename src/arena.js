@@ -7,9 +7,17 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   blueTower:'buildings/blue/building_tower_A_blue',redTower:'buildings/red/building_tower_A_red',
   wall:'buildings/neutral/wall_straight',gate:'buildings/neutral/wall_straight_gate',
   treeA:'decoration/nature/tree_single_A',treeB:'decoration/nature/tree_single_B',
-  rockA:'decoration/nature/rock_single_A',rockC:'decoration/nature/rock_single_C'
+  rockA:'decoration/nature/rock_single_A',rockC:'decoration/nature/rock_single_C',
+  blueHome:'buildings/blue/building_home_A_blue',redHome:'buildings/red/building_home_A_red',
+  blueWell:'buildings/blue/building_well_blue',redWell:'buildings/red/building_well_red',
+  blueFlag:'decoration/props/flag_blue',redFlag:'decoration/props/flag_red',
+  tent:'decoration/props/tent',barrel:'decoration/props/barrel',crate:'decoration/props/crate_A_small',sack:'decoration/props/sack',
+  hillA:'decoration/nature/hill_single_A',hillC:'decoration/nature/hill_single_C',ridge:'decoration/nature/mountain_A_grass',
+  fence:'buildings/neutral/fence_wood_straight'
  };
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
+ const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart'};
+ await Promise.all(Object.entries(extraPaths).map(async ([key,path])=>{models[key]=await assets.loadFile(`${path}.glb`)}));
  const batches=new Map();
  function prop(name,height,x,z,rotation=0,batch=false){
   const {root}=assets.instance(models[name],height);
@@ -19,7 +27,14 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
    const footprint=Math.max(size.x,size.z);
    if(footprint>height*1.6)root.scale.multiplyScalar(height*1.6/footprint);
   }
-  root.position.set(x,.13,z);root.rotation.y=rotation;
+  if(name.startsWith('hill')||name==='ridge'||name==='pathStone'){
+   const size=new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3());
+   const limit=name==='pathStone'?1.4:height*6;
+   if(Math.max(size.x,size.z)>limit)root.scale.multiplyScalar(limit/Math.max(size.x,size.z));
+  }
+  const vegetation=['treeA','treeB','shrub','shrubSmall','grass','fern','purple','yellow'];
+  const groundLevel=vegetation.includes(name)||name.startsWith('hill')||name.startsWith('rock')||name==='ridge'||name==='pathStone'?-.09:.13;
+  root.position.set(x,groundLevel,z);root.rotation.y=rotation;
   if(!batch){scene.add(root);return root}
   root.updateMatrixWorld(true);
   root.traverse(node=>{if(!node.isMesh)return;const key=`${node.geometry.uuid}:${node.material.uuid}`;
@@ -63,6 +78,36 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   ['rockA',1.3,6.2,7.3,1.2],['rockC',.7,5.1,7,.4]
  ];
  for(const side of [-1,1])for(const [name,height,x,z,angle] of grove)prop(name,height,side*x,z,side*angle,true);
+
+ // Layered outskirts: stone ridges behind groves, low planted edges nearer the clearing.
+ for(const side of [-1,1]){
+  for(const [key,height,x,z,angle] of [
+   ['ridge',1.35,16,-8,.5],['hillA',.85,8,-10,.8],['hillC',1,2,-11,.2],
+   ['hillA',.7,14,8,.4],['hillC',.65,6,10,1.1],['ridge',1.1,18,3,.7]
+  ])prop(key,height,side*x,z,side*angle,true);
+  const plantingBeds=[[2,-5.4],[5,-6.1],[8,-5.8],[12.5,-6.6],[14,2.7],[12,6.7],[8,6.2],[4,5.2],[1,7.5],[16,8.5]];
+  plantingBeds.forEach(([x,z],bed)=>{
+   prop('shrub',.55+(bed%3)*.12,side*x,z,bed*.63,true);
+   prop('shrubSmall',.36,side*(x+.8),z+.5,bed*.9,true);
+   for(let i=0;i<6;i++){
+    const angle=i*1.047+bed*.3,distance=.8+(i%3)*.3;
+    const px=side*(x+Math.cos(angle)*distance),pz=z+Math.sin(angle)*distance;
+    prop(i%2?'grass':'fern',.19+(i%3)*.05,px,pz,angle,true);
+    if(i===1||i===4)prop(bed%2?'purple':'yellow',.25,px+side*.18,pz+.12,angle,true);
+   }
+  });
+  // Small frontier settlements flank the walls; the playable corridor stays clear.
+  prop(side===-1?'blueHome':'redHome',1.95,side*12.9,-2.5,side*Math.PI/2,true);
+  prop(side===-1?'blueWell':'redWell',.85,side*13.1,.5,0,true);
+  prop(side===-1?'blueFlag':'redFlag',1.5,side*6.1,-4.1,side*.2,true);
+  prop('tent',1.15,side*12.4,5.7,side*.45,true);
+  prop('cart',.85,side*14.1,4.6,side*.7,true);
+  for(const [x,z] of [[12.8,4.5],[13.3,4.9],[13.5,-1.3]])prop('barrel',.48,side*x,z,z*.2,true);
+  prop('crate',.43,side*12.2,4.7,.3,true);prop('sack',.42,side*12.6,4.3,.8,true);
+  for(const z of [-5.9,-7.6])prop('fence',.52,side*6.5,z,Math.PI/2,true);
+  // Stone verges connect courts and settlements rather than adding decorative dead ends.
+  for(const [x,z,angle] of [[3.1,-3.8,.08],[4.4,-3.95,.12],[5.7,-4.05,.12],[3.1,3.8,-.08],[4.4,3.95,-.12],[5.7,4.05,-.12],[12,-.2,Math.PI/2],[13,-.2,Math.PI/2]])prop('pathStone',.12,side*x,z,side*angle,true);
+ }
 
  const ring=(x,z,color,r=1.4)=>{const m=mesh(new THREE.RingGeometry(r-.07,r,64),color,x,.13,z);m.rotation.x=-Math.PI/2;return m};
  // The centre is kept clear so soldiers and projectiles remain the focal point.
