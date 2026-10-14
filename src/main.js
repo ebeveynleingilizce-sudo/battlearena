@@ -43,8 +43,8 @@ async function main() {
   sun.shadow.normalBias = 0.04;
   scene.add(sun);
   const camera = new THREE.OrthographicCamera(-18, 18, 12, -12, 0.1, 100);
-  camera.position.set(25, 27, 25);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(12, 28, 32);
+  camera.lookAt(0, 0, 2);
   camera.updateMatrixWorld();
   function resize() {
     const width = host.clientWidth, height = host.clientHeight;
