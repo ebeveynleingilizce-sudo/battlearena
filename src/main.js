@@ -58,7 +58,7 @@ async function main() {
       maxY = Math.max(maxY, Math.abs(p.y));
     }
     // Bring the battlefield closer on wide monitors; preserve the full arena on narrow screens.
-    const zoom = aspect >= 1.5 ? 0.94 : 1.04;
+    const zoom = aspect >= 1.5 ? 0.72 : 0.94;
     const half = Math.max(maxY, maxX / aspect) * zoom;
     camera.left = -half * aspect; camera.right = half * aspect;
     camera.top = half; camera.bottom = -half;
