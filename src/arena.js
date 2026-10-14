@@ -12,7 +12,9 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   blueFlag:'decoration/props/flag_blue',redFlag:'decoration/props/flag_red',
   tent:'decoration/props/tent',barrel:'decoration/props/barrel',crate:'decoration/props/crate_A_small',sack:'decoration/props/sack',
   hillA:'decoration/nature/hill_single_A',hillC:'decoration/nature/hill_single_C',ridge:'decoration/nature/mountain_A_grass',
-  fence:'buildings/neutral/fence_wood_straight'
+  fence:'buildings/neutral/fence_wood_straight',
+  weaponrack:'decoration/props/weaponrack',target:'decoration/props/target',arrows:'decoration/props/bucket_arrows',
+  wheelbarrow:'decoration/props/wheelbarrow',lumber:'decoration/props/resource_lumber',stoneSupply:'decoration/props/resource_stone'
  };
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
  const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart',
@@ -104,6 +106,13 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   prop('cart',.85,side*14.1,4.6,side*.7,true);
   for(const [x,z] of [[12.8,4.5],[13.3,4.9],[13.5,-1.3]])prop('barrel',.48,side*x,z,z*.2,true);
   prop('crate',.43,side*12.2,4.7,.3,true);prop('sack',.42,side*12.6,4.3,.8,true);
+  // Training and supply vignettes sit outside the combat corridor; decorative only.
+  prop('weaponrack',.95,side*12.8,6.7,side*.35,true);
+  prop('target',1.05,side*11.3,6.9,side*Math.PI/2,true);
+  prop('arrows',.42,side*11.8,6.6,0,true);
+  prop('wheelbarrow',.65,side*14.3,-1.3,side*.55,true);
+  prop('lumber',.48,side*13.9,-2.7,.3,true);
+  prop('stoneSupply',.42,side*14.8,-2.2,1,true);
   for(const z of [-5.9,-7.6])prop('fence',.52,side*6.5,z,Math.PI/2,true);
   // Stone verges connect courts and settlements rather than adding decorative dead ends.
   for(const [x,z,angle] of [[3.1,-3.8,.08],[4.4,-3.95,.12],[5.7,-4.05,.12],[3.1,3.8,-.08],[4.4,3.95,-.12],[5.7,4.05,-.12],[12,-.2,Math.PI/2],[13,-.2,Math.PI/2]])prop('pathStone',.12,side*x,z,side*angle,true);

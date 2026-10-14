@@ -1,4 +1,5 @@
 node_modules/
+asset-packs/
 artifacts/balance-candidate*
 artifacts/prepare-deploy.mjs
 artifacts/github-publish.ps1
