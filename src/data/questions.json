@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 1,
+  "questions": [
+    {
+      "answer": "kedi",
+      "prompt": "'cat' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'cat' Türkçede 'kedi' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "kedi",
+        "köpek",
+        "kuş",
+        "balık"
+      ],
+      "id": "vocab-1",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "dog",
+      "prompt": "'köpek' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'dog' Türkçede 'köpek' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "dog",
+        "bird",
+        "fish",
+        "horse"
+      ],
+      "id": "vocab-2",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "kuş",
+      "prompt": "'bird' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'bird' Türkçede 'kuş' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "kuş",
+        "balık",
+        "at",
+        "inek"
+      ],
+      "id": "vocab-3",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "fish",
+      "prompt": "'balık' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'fish' Türkçede 'balık' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "fish",
+        "horse",
+        "cow",
+        "sheep"
+      ],
+      "id": "vocab-4",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "at",
+      "prompt": "'horse' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'horse' Türkçede 'at' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "at",
+        "inek",
+        "koyun",
+        "tavşan"
+      ],
+      "id": "vocab-5",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "cow",
+      "prompt": "'inek' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'cow' Türkçede 'inek' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "cow",
+        "sheep",
+        "rabbit",
+        "lion"
+      ],
+      "id": "vocab-6",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "koyun",
+      "prompt": "'sheep' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'sheep' Türkçede 'koyun' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "koyun",
+        "tavşan",
+        "aslan",
+        "fil"
+      ],
+      "id": "vocab-7",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "rabbit",
+      "prompt": "'tavşan' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'rabbit' Türkçede 'tavşan' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "rabbit",
+        "lion",
+        "elephant",
+        "cat"
+      ],
+      "id": "vocab-8",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "aslan",
+      "prompt": "'lion' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'lion' Türkçede 'aslan' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "aslan",
+        "fil",
+        "kedi",
+        "köpek"
+      ],
+      "id": "vocab-9",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "elephant",
+      "prompt": "'fil' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'elephant' Türkçede 'fil' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Animals",
+      "unit": "Animals",
+      "options": [
+        "elephant",
+        "cat",
+        "dog",
+        "bird"
+      ],
+      "id": "vocab-10",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "elma",
+      "prompt": "'apple' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'apple' Türkçede 'elma' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "elma",
+        "muz",
+        "ekmek",
+        "peynir"
+      ],
+      "id": "vocab-11",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "banana",
+      "prompt": "'muz' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'banana' Türkçede 'muz' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "banana",
+        "bread",
+        "cheese",
+        "milk"
+      ],
+      "id": "vocab-12",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "ekmek",
+      "prompt": "'bread' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'bread' Türkçede 'ekmek' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "ekmek",
+        "peynir",
+        "süt",
+        "yumurta"
+      ],
+      "id": "vocab-13",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "cheese",
+      "prompt": "'peynir' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'cheese' Türkçede 'peynir' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "cheese",
+        "milk",
+        "egg",
+        "rice"
+      ],
+      "id": "vocab-14",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "süt",
+      "prompt": "'milk' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'milk' Türkçede 'süt' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "süt",
+        "yumurta",
+        "pirinç",
+        "havuç"
+      ],
+      "id": "vocab-15",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "egg",
+      "prompt": "'yumurta' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'egg' Türkçede 'yumurta' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "egg",
+        "rice",
+        "carrot",
+        "potato"
+      ],
+      "id": "vocab-16",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "pirinç",
+      "prompt": "'rice' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'rice' Türkçede 'pirinç' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "pirinç",
+        "havuç",
+        "patates",
+        "domates"
+      ],
+      "id": "vocab-17",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "carrot",
+      "prompt": "'havuç' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'carrot' Türkçede 'havuç' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "carrot",
+        "potato",
+        "tomato",
+        "apple"
+      ],
+      "id": "vocab-18",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "patates",
+      "prompt": "'potato' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'potato' Türkçede 'patates' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "patates",
+        "domates",
+        "elma",
+        "muz"
+      ],
+      "id": "vocab-19",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "tomato",
+      "prompt": "'domates' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'tomato' Türkçede 'domates' anlamına gelir.",
+      "grade": "beginner",
+      "category": "Food",
+      "unit": "Food",
+      "options": [
+        "tomato",
+        "apple",
+        "banana",
+        "bread"
+      ],
+      "id": "vocab-20",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "kurşun kalem",
+      "prompt": "'pencil' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'pencil' Türkçede 'kurşun kalem' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "kurşun kalem",
+        "tükenmez kalem",
+        "silgi",
+        "cetvel"
+      ],
+      "id": "vocab-21",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "pen",
+      "prompt": "'tükenmez kalem' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'pen' Türkçede 'tükenmez kalem' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "pen",
+        "eraser",
+        "ruler",
+        "book"
+      ],
+      "id": "vocab-22",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "silgi",
+      "prompt": "'eraser' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'eraser' Türkçede 'silgi' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "silgi",
+        "cetvel",
+        "kitap",
+        "defter"
+      ],
+      "id": "vocab-23",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "ruler",
+      "prompt": "'cetvel' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'ruler' Türkçede 'cetvel' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "ruler",
+        "book",
+        "notebook",
+        "schoolbag"
+      ],
+      "id": "vocab-24",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "kitap",
+      "prompt": "'book' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'book' Türkçede 'kitap' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "kitap",
+        "defter",
+        "okul çantası",
+        "sıra"
+      ],
+      "id": "vocab-25",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "notebook",
+      "prompt": "'defter' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'notebook' Türkçede 'defter' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "notebook",
+        "schoolbag",
+        "desk",
+        "chair"
+      ],
+      "id": "vocab-26",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "okul çantası",
+      "prompt": "'schoolbag' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'schoolbag' Türkçede 'okul çantası' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "okul çantası",
+        "sıra",
+        "sandalye",
+        "makas"
+      ],
+      "id": "vocab-27",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "desk",
+      "prompt": "'sıra' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'desk' Türkçede 'sıra' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "desk",
+        "chair",
+        "scissors",
+        "pencil"
+      ],
+      "id": "vocab-28",
+      "direction": "tr-en"
+    },
+    {
+      "answer": "sandalye",
+      "prompt": "'chair' kelimesinin Türkçe karşılığı hangisidir?",
+      "explanation": "'chair' Türkçede 'sandalye' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "sandalye",
+        "makas",
+        "kurşun kalem",
+        "tükenmez kalem"
+      ],
+      "id": "vocab-29",
+      "direction": "en-tr"
+    },
+    {
+      "answer": "scissors",
+      "prompt": "'makas' kelimesinin İngilizce karşılığı hangisidir?",
+      "explanation": "'scissors' Türkçede 'makas' anlamına gelir.",
+      "grade": "beginner",
+      "category": "School Objects",
+      "unit": "School Objects",
+      "options": [
+        "scissors",
+        "pencil",
+        "pen",
+        "eraser"
+      ],
+      "id": "vocab-30",
+      "direction": "tr-en"
+    }
+  ],
+  "id": "beginner-vocabulary"
+}

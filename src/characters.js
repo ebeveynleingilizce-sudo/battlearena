@@ -1,0 +1,7 @@
+import {AnimationMixer} from 'three';
+export async function createCharacters(scene,assets,ring,panel){
+ const names=['Character_Soldier','Character_Hazmat','Character_Enemy'];const models=await Promise.all(names.map(n=>assets.load('Characters',n)));const actors=[];
+ for(const side of [-1,1])models.forEach((gltf,i)=>{for(const name of ['Idle','Run'])if(!gltf.animations.some(c=>c.name===name))throw new Error(`${names[i]}: ${name} klibi eksik`);const {root,model}=assets.instance(gltf,1.65);root.position.set(side*(4.6+(i===1?.6:0)),.14,(i-1)*1.65);root.rotation.y=side===-1?Math.PI/2:-Math.PI/2;scene.add(root);ring(root.position.x,root.position.z,side===-1?0x55baff:0xff7668,.53);const mixer=new AnimationMixer(model);const actions=Object.fromEntries(['Idle','Run'].map(name=>[name,mixer.clipAction(gltf.animations.find(c=>c.name===name))]));actions.Idle.play();mixer.update(i*.27);actors.push({mixer,actions,current:'Idle'})});
+ let mode='Auto',last='';document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{mode=button.dataset.mode;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===button))}));
+ return {actors,update(dt,time){const next=mode==='Auto'?(Math.floor(time/6)%2?'Run':'Idle'):mode;for(const actor of actors){if(actor.current!==next){actor.actions[actor.current].fadeOut(.35);actor.actions[next].reset().fadeIn(.35).play();actor.current=next}actor.mixer.update(dt)}if(next!==last){panel.state.animation=next;panel.refresh();last=next}}};
+}
