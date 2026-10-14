@@ -44,6 +44,8 @@ export function createBattleUI(simulation, view, onRestart) {
       }
       if (simulation.status === 'finished' && !showedResult) {
         const result = simulation.result;
+        nodes.result.dataset.outcome=result.winner===null?'draw':'victory';
+        nodes.result.style.setProperty('--winner-color',result.winner===0?'#87c7ef':'#f59c85');
         nodes['result-title'].textContent = result.winner === null ? 'Berabere!' : result.winner === 0 ? 'Northguard kazandı!' : 'Ember squad kazandı!';
         nodes['result-reason'].textContent = result.reason === 'base' ? 'Üs savunması düştü. Savaş sona erdi.' : 'Süre doldu. Sonuç kalan üs HP değerlerine göre belirlendi.';
         nodes['result-hp'].textContent = `Mavi üs: ${Number(simulation.bases[0].hp.toFixed(1))} HP  ·  Kırmızı üs: ${Number(simulation.bases[1].hp.toFixed(1))} HP`;

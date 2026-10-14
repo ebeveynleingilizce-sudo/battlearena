@@ -36,6 +36,7 @@ export class BattleView {
     this.lab = { enabled: false, mode: 'Auto', time: 0 };
     this.shots = [];
     this.decisions=[];
+    this.motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
     for(const base of arena.bases){
       base.hitMaterials=[];
       base.tower.traverse(node=>{if(!node.isMesh)return;node.material=node.material.clone();if(node.material.emissive)base.hitMaterials.push(node.material);});
@@ -127,6 +128,7 @@ export class BattleView {
   }
 
   update(simulation, alpha, dt, camera) {
+    this.effects.reducedMotion=this.motionPreference.matches;
     this.lab.time += dt;
     for (const unit of simulation.units) {
       const actor = this.actors.get(unit.id) ?? this.acquire(unit);
@@ -202,7 +204,7 @@ export class BattleView {
       base.platform.material.emissive.setHex(base.flash > 0 ? 0xffb46a : 0x000000);
       base.platform.material.emissiveIntensity = base.flash * 3;
       for(const material of base.hitMaterials){material.emissive.setHex(base.flash>0?0xffb46a:0);material.emissiveIntensity=base.flash*1.6;}
-      base.tower.position.x = base.x + (base.flash > 0 ? Math.sin(base.flash * 65) * 0.025 : 0);
+      base.tower.position.x = base.x + (base.flash > 0&&!this.effects.reducedMotion ? Math.sin(base.flash * 65) * 0.025 : 0);
     }
     this.panel.state.instances = 22 + this.actors.size;
     this.panel.state.animation = this.lab.enabled ? 'Test' : 'Otomatik savaş';

@@ -65,6 +65,7 @@ export class BattleEffects {
   }
 
   flash(x, y, z, size, duration, dx = 0, dz = 0, material=this.flashMaterial) {
+    if(this.reducedMotion){dx=dz=0;duration=Math.min(duration,.18);}
     const slot = this.flashes.find(item => !item.mesh.visible);
     if (!slot) return;
     Object.assign(slot, { time: duration, duration, size, dx, dz });
@@ -108,12 +109,14 @@ export class BattleEffects {
 
   pulse(x,z,color,size=1,y=1){
     const slot=this.pulses.find(item=>!item.mesh.visible);if(!slot)return;
-    Object.assign(slot,{time:.65,duration:.65,size});slot.mesh.material.color.setHex(color);
+    const duration=this.reducedMotion?.2:.65;
+    Object.assign(slot,{time:duration,duration,size});slot.mesh.material.color.setHex(color);
     slot.mesh.position.set(x,y,z);slot.mesh.scale.setScalar(size);slot.mesh.visible=true;
   }
 
   levelUp(base){
     this.flash(base.x,1.5,0,.75,.5,0,0,this.levelMaterial);
+    if(this.reducedMotion)return;
     for(let i=0;i<4;i++){const angle=i*Math.PI/2;this.flash(base.x+Math.cos(angle),.5,Math.sin(angle),.2,.6,0,0,this.levelMaterial);}
   }
 
@@ -146,21 +149,21 @@ export class BattleEffects {
       flash.mesh.position.x += flash.dx * dt;
       flash.mesh.position.z += flash.dz * dt;
       flash.mesh.scale.setScalar(flash.size * (flash.time / flash.duration));
-      flash.mesh.rotation.y += dt * 8;
+      if(!this.reducedMotion)flash.mesh.rotation.y += dt * 8;
     }
     for(const slot of this.lightning){slot.time-=dt;if(slot.time<=0)slot.line.visible=false;}
     for(const slot of this.heals){
       if(!slot.sprite.visible)continue;slot.time-=dt;
-      slot.sprite.position.y+=dt*.6;slot.sprite.scale.setScalar(Math.max(0,slot.time/.45)*1.7);
+      if(!this.reducedMotion)slot.sprite.position.y+=dt*.6;slot.sprite.scale.setScalar(Math.max(0,slot.time/.45)*1.7);
       if(slot.time<=0)slot.sprite.visible=false;
     }
     for(const slot of this.pulses){
       if(!slot.mesh.visible)continue;slot.time-=dt;
       const ratio=Math.max(0,slot.time/slot.duration);slot.mesh.material.opacity=ratio*.45;
-      slot.mesh.scale.setScalar(slot.size*(1+(1-ratio)*.2));if(slot.time<=0)slot.mesh.visible=false;
+      slot.mesh.scale.setScalar(slot.size*(1+(this.reducedMotion?0:(1-ratio)*.2)));if(slot.time<=0)slot.mesh.visible=false;
     }
     for(const slot of this.labels){
-      if(!slot.sprite.visible)continue;slot.time-=dt;slot.sprite.position.y+=dt*.6;
+      if(!slot.sprite.visible)continue;slot.time-=dt;if(!this.reducedMotion)slot.sprite.position.y+=dt*.6;
       slot.sprite.material.opacity=Math.min(1,Math.max(0,slot.time/.25));if(slot.time<=0)slot.sprite.visible=false;
     }
     for(const [id,time] of this.healTextTimes)if(this.elapsed-time>2)this.healTextTimes.delete(id);

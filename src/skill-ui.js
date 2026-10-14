@@ -8,6 +8,8 @@ export function createSkillUI(simulation,audio,player) {
   const teams=[0,1].map(team=>({xp:get(`xp-${team}`),level:get(`level-${team}`),bar:get(`xp-bar-${team}`),
     icons:get(`skills-${team}`),badge:get(`pending-${team}`)}));
   let signature='',noticeUntil=0;
+  let selectionHighlight=null,highlightUntil=0;
+  let pendingHighlight=null;
   const iconSignatures=['',''];
   function notify(message){notice.textContent=message;notice.hidden=false;noticeUntil=performance.now()+1800;}
   cards.addEventListener('click',event=>{
@@ -15,7 +17,7 @@ export function createSkillUI(simulation,audio,player) {
     if(!button || button.disabled)return;
     const result=simulation.enqueueCommand({type:'selectSkill',matchID:simulation.matchID,
       team:player.team,choiceID:button.dataset.choiceId,skillID:button.dataset.skillId},player.team);
-    if(result.accepted){cards.querySelectorAll('button').forEach(b=>b.disabled=true);write(get('skill-feedback'),'Seçim uygulanıyor…');}
+    if(result.accepted){pendingHighlight={card:button.cloneNode(true),rect:button.getBoundingClientRect(),choiceID:button.dataset.choiceId};cards.querySelectorAll('button').forEach(b=>b.disabled=true);write(get('skill-feedback'),'Seçim uygulanıyor…');}
     else{write(get('skill-feedback'),`Seçim reddedildi: ${result.reason}`);signature='';}
   });
 
@@ -46,15 +48,29 @@ export function createSkillUI(simulation,audio,player) {
   }
 
   return {
-    reset(){signature='';iconSignatures.fill('');notice.hidden=true;noticeUntil=0;cards.replaceChildren();},
+    reset(){signature='';iconSignatures.fill('');notice.hidden=true;noticeUntil=0;selectionHighlight?.remove();selectionHighlight=null;pendingHighlight=null;cards.replaceChildren();},
     consume(events){
+      const questions=simulation.questions.teams[player.team];
+      audio.readingQuestion=Boolean(questions.active||questions.feedback?.until>simulation.tick)&&simulation.teams[player.team].pending.length===0;
       for(const event of events){
         audio.consume(event);
         if(event.type==='level-up'){
+          if(!matchMedia('(prefers-reduced-motion: reduce)').matches)teams[event.team].level.animate([{color:'#e9efb2'},{color:'#fff6a2'},{color:'#e9efb2'}],{duration:600});
           if(event.team===player.team)notify(`LEVEL UP! ${event.team===0?'Mavi':'Kırmızı'} takım · Level ${event.level}`);
         }
-        if(event.type==='skill-selected')notify(`${event.team===0?'Mavi':'Kırmızı'} · ${SKILL_BY_ID[event.skillID].name} ${event.rank}`);
-        if(event.type==='command-result' && !event.accepted){signature='';notify(`Seçim reddedildi: ${event.reason}`);}
+        if(event.type==='skill-selected'){
+          notify(`${event.team===0?'Mavi':'Kırmızı'} · ${SKILL_BY_ID[event.skillID].name} ${event.rank}`);
+          const captured=pendingHighlight?.choiceID===event.choiceID?pendingHighlight:null;
+          const selected=captured?.card??[...cards.children].find(card=>card.dataset.skillId===event.skillID&&card.dataset.choiceId===event.choiceID);
+          if(selected){
+            selectionHighlight?.remove();const rect=captured?.rect??selected.getBoundingClientRect();
+            selectionHighlight=selected.cloneNode(true);selectionHighlight.classList.add('confirmed-skill');selectionHighlight.disabled=true;
+            Object.assign(selectionHighlight.style,{position:'fixed',left:`${rect.left}px`,top:`${rect.top}px`,width:`${rect.width}px`,height:`${rect.height}px`});
+            document.body.append(selectionHighlight);highlightUntil=performance.now()+350;
+          }
+          pendingHighlight=null;
+        }
+        if(event.type==='command-result' && !event.accepted){pendingHighlight=null;signature='';notify(`Seçim reddedildi: ${event.reason}`);}
       }
     },
     update(){
@@ -64,6 +80,7 @@ export function createSkillUI(simulation,audio,player) {
       const siege=simulation.config.baseDamage*Math.min(simulation.config.baseSkillMultiplierCap,(s.damage/simulation.config.damage)*(s.fireRate/simulation.config.fireRate)*(1+s.doubleChance));
       write(get('player-stats'),`Asker hasarı ${s.damage.toFixed(1)} · Ateş ${s.fireRate.toFixed(2)}/sn · Can ${s.maxHP.toFixed(0)} · Üretim ${(1/s.spawnRate).toFixed(2)} sn · Üs DPS ${siege.toFixed(1)} · Yanma ${s.burnDamage}/sn`);
       const anyPending=simulation.teams[player.team].pending.length>0;
+      if(selectionHighlight&&(performance.now()>=highlightUntil||!live)){selectionHighlight.remove();selectionHighlight=null;}
       dock.hidden=!live || !anyPending;
       const right=simulation.teams[player.team].pending[0];
       const remaining=right?.deadline==null?null:Math.max(0,Math.ceil((right.deadline-simulation.tick)/simulation.config.tickRate));
