@@ -33,7 +33,7 @@ export function createQuestionUI(sim,player){
     const key=JSON.stringify([sim.matchID,sim.status,team,blocked,a?.id,f?.id,f?.outcome,f?.bonus,Math.ceil(((a?.deadline??0)-sim.tick)/sim.config.tickRate),t.stats,sim.questions.teams.map(t=>t.bonuses)]);
     document.getElementById('english-results').textContent=sim.status==='finished'?`İNGİLİZCE PERFORMANSI\n${summary()}`:'';
     if(signature===key)return;signature=key;panel.replaceChildren();
-    const label=document.createElement('span');label.className='eyebrow';label.textContent='WORD BOOST · İNGİLİZCE';panel.append(label);
+    const label=document.createElement('span');label.className='eyebrow';label.textContent=`${team===0?'MAVİ':'KIRMIZI'} KRALLIK · WORD BOOST`;panel.append(label);
     const p=document.createElement('p');
     if(sim.status!=='running')p.textContent='Maç tamamlandı. İngilizce performansı sonuç ekranında.';
     else if(blocked)p.textContent='Skill seçerken soru süren korunur. Seçimden sonra aynı soruya döneceksin.';

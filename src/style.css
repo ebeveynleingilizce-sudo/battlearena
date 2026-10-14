@@ -340,12 +340,10 @@ body{overflow-x:hidden}
 }
 
 /* Temporary arena-size calibration mode: preserve gameplay logic, hide only decision UI. */
-#skill-notice{display:none!important}
 html,body{width:100%;height:100%;overflow:hidden!important}
 .app,.battle-layout,.arena-shell,#viewport{width:100vw!important;height:100dvh!important;min-height:0!important;max-height:none!important}
 .battle-layout,.battle-layout:has(.selection-dock:not([hidden])){display:block!important;position:fixed!important;inset:0!important}
 .arena-shell{position:absolute!important;inset:0!important;border:0!important;border-radius:0!important}
-.learning-docks{display:none!important}
 .player-strip{top:8px!important}
 .team-label{top:10px!important}
 footer{position:fixed!important;z-index:35!important;right:12px!important;bottom:10px!important;width:auto!important;padding:0!important;margin:0!important;background:transparent!important}
@@ -354,3 +352,74 @@ footer>div:first-child{display:none!important}
 .footer-actions button{padding:7px 11px!important;background:#10232cdd!important;color:#e4f2f3!important}
 .tools{display:none!important}
 @media(max-width:650px){.team-label{width:clamp(115px,32vw,180px)!important;padding:6px 8px!important}.match-clock{top:70px!important}.player-strip{max-width:38vw!important;min-width:0!important;padding:5px 8px!important}}
+
+/* In-world decision HUD: shared kingdom palette and one compact lower overlay. */
+:root{--battle-hud-height:240px}
+.learning-docks{
+ left:50%!important;right:auto!important;bottom:14px!important;top:auto!important;
+ transform:translateX(-50%)!important;width:min(940px,calc(100vw - 28px))!important;
+ display:flex!important;height:auto!important;min-height:0!important;max-height:42dvh!important;
+ padding:0!important;background:none!important;border:0!important;pointer-events:none;
+}
+.learning-docks:has(> .question-panel[hidden]):has(> .selection-dock[hidden]){display:none!important}
+.learning-docks>.question-panel,.learning-docks>.selection-dock{
+ --team-accent:#87c7ef;position:relative;height:auto!important;min-height:0!important;
+ max-height:42dvh!important;max-width:none!important;margin:0!important;padding:14px 18px!important;
+ color:#f1ecd3!important;border:1px solid #a79c6c!important;border-top:3px solid var(--team-accent)!important;
+ border-radius:12px!important;box-shadow:0 10px 28px #07150b8c,inset 0 0 0 3px #bbaf7430!important;
+ background:linear-gradient(150deg,#263c2afa,#142921fa)!important;pointer-events:auto;overflow:auto!important;
+}
+.learning-docks>[data-team="1"]{--team-accent:#f59c85}
+.learning-docks .question-panel>.eyebrow,.learning-docks .selection-dock>.eyebrow{
+ display:block!important;color:var(--team-accent)!important;text-align:center;letter-spacing:1.6px;font-size:9px;
+}
+.learning-docks .question-panel h2,.learning-docks .selection-dock h2{
+ color:#f6efcf!important;font-size:clamp(15px,1.6vw,20px)!important;line-height:1.3!important;margin:5px 0 6px!important;
+}
+.learning-docks .question-panel>p:empty,.learning-docks .bonus-status:empty{display:none!important}
+.learning-docks .question-panel>small{color:#bed0b7!important;font-size:10px!important}
+.learning-docks .question-panel progress{height:4px;margin:6px 0;accent-color:var(--team-accent)}
+.learning-docks .question-options{grid-template-columns:repeat(4,minmax(0,1fr))!important;margin:8px 0!important}
+.learning-docks .question-options button{
+ min-height:46px!important;border:1px solid #829475;background:linear-gradient(#405a3b,#2b432e);
+ border-radius:7px;color:#fff4d8;font-size:15px!important;font-weight:600;box-shadow:inset 0 1px #d8ddad25;
+}
+.learning-docks .question-options button:hover:not(:disabled){border-color:#dfcf91;background:#4b6540}
+.learning-docks .question-options .answer-correct{background:#3d7044;border-color:#bce38f}
+.learning-docks .question-options .answer-wrong{background:#784339;border-color:#eaae8f}
+.learning-docks .question-panel .answer-feedback{font-size:12px!important;line-height:1.4;margin:6px 0!important}
+.learning-docks .question-panel .correct{color:#c4e99a!important}
+.learning-docks .question-panel .wrong{color:#f6b49b!important}
+.learning-docks #skill-timer{color:#e1d398!important;text-align:center!important;font-size:11px!important;margin:0 0 8px!important}
+.learning-docks #skill-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
+.learning-docks #skill-cards .skill-card{
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;
+ min-height:106px!important;max-height:none!important;padding:10px!important;gap:10px!important;overflow:visible;
+ background:linear-gradient(145deg,#3e5337,#263c2a)!important;border:1px solid #8c9d74!important;
+ border-radius:8px!important;box-shadow:inset 0 1px #e8dfae20!important;
+}
+.learning-docks #skill-cards .skill-card:hover{border-color:var(--skill-color)!important;background:#4a603b!important}
+.learning-docks #skill-cards .skill-card img{width:38px!important;height:38px!important;background:#192e23;border:1px solid #8c9d7455;border-radius:7px}
+.learning-docks #skill-cards .skill-card-copy{display:flex;flex-direction:column;gap:5px!important;text-align:left!important}
+.learning-docks #skill-cards .skill-card-copy strong{font-size:13px!important;color:var(--skill-color)!important}
+.learning-docks #skill-cards .skill-card-copy small{display:block!important;font-size:9px!important;color:#d6d7b7!important}
+.learning-docks #skill-cards .skill-card-copy>span{display:block!important;overflow:visible;-webkit-line-clamp:unset!important;font-size:11px!important;line-height:1.4!important;color:#dce4c9!important}
+.learning-docks .selection-dock #skill-feedback:not(:empty){display:block!important;color:#efdda7;margin:6px 0 0}
+#skill-notice{z-index:25;bottom:calc(42dvh + 20px);background:#233c28ee;border-color:#aaad79;color:#e9edb7;font-size:13px!important}
+.battle-layout:has(.learning-docks > .question-panel:not([hidden])) .arena-shell,
+.battle-layout:has(.learning-docks > .selection-dock:not([hidden])) .arena-shell{bottom:0!important;height:100dvh!important}
+body:has(.learning-docks > .question-panel:not([hidden])) footer,
+body:has(.learning-docks > .selection-dock:not([hidden])) footer{bottom:calc(42dvh + 22px)!important}
+.team-label{background:#1d3429e6!important;border-top:1px solid #9b9d6955;box-shadow:0 5px 16px #12251950}
+@media(max-width:700px){
+ .learning-docks{width:calc(100vw - 16px)!important;bottom:8px!important}
+ .learning-docks>.question-panel,.learning-docks>.selection-dock{padding:10px!important;max-height:44dvh!important}
+ .learning-docks .question-options{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ .learning-docks .question-options button{min-height:44px!important;font-size:14px!important}
+ .learning-docks #skill-cards{gap:5px!important}
+ .learning-docks #skill-cards .skill-card{flex-direction:column!important;align-items:flex-start!important;min-height:142px!important;padding:7px!important;gap:6px!important}
+ .learning-docks #skill-cards .skill-card img{width:28px!important;height:28px!important}
+ .learning-docks #skill-cards .skill-card-copy strong{font-size:11px!important}
+ .learning-docks #skill-cards .skill-card-copy>span{font-size:10px!important}
+ .player-strip{display:none!important}
+}

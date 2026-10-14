@@ -59,6 +59,7 @@ export function createSkillUI(simulation,audio,player) {
     },
     update(){
       const live=simulation.status==='running';
+      dock.dataset.team=player.team;
       const s=simulation.teams[player.team].stats;
       const siege=simulation.config.baseDamage*Math.min(simulation.config.baseSkillMultiplierCap,(s.damage/simulation.config.damage)*(s.fireRate/simulation.config.fireRate)*(1+s.doubleChance));
       write(get('player-stats'),`Asker hasarı ${s.damage.toFixed(1)} · Ateş ${s.fireRate.toFixed(2)}/sn · Can ${s.maxHP.toFixed(0)} · Üretim ${(1/s.spawnRate).toFixed(2)} sn · Üs DPS ${siege.toFixed(1)} · Yanma ${s.burnDamage}/sn`);
