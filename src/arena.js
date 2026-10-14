@@ -14,14 +14,24 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   hillA:'decoration/nature/hill_single_A',hillC:'decoration/nature/hill_single_C',ridge:'decoration/nature/mountain_A_grass',
   fence:'buildings/neutral/fence_wood_straight',
   weaponrack:'decoration/props/weaponrack',target:'decoration/props/target',arrows:'decoration/props/bucket_arrows',
-  wheelbarrow:'decoration/props/wheelbarrow',lumber:'decoration/props/resource_lumber',stoneSupply:'decoration/props/resource_stone',
-  bridge:'buildings/neutral/building_bridge_A'
+  wheelbarrow:'decoration/props/wheelbarrow',lumber:'decoration/props/resource_lumber',stoneSupply:'decoration/props/resource_stone'
  };
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
  const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart',
-  castleTower:'castle-kit/tower-square',castleWall:'castle-kit/wall-narrow',castleStairs:'castle-kit/wall-narrow-stairs',castleDoor:'castle-kit/wall-doorway',pillar:'castle-kit/wall-pillar',rockKit:'castle-kit/rocks-small'};
+  castleTower:'castle-kit/tower-square',castleWall:'castle-kit/wall-narrow',castleStairs:'castle-kit/wall-narrow-stairs',castleDoor:'castle-kit/wall-doorway',pillar:'castle-kit/wall-pillar',rockKit:'castle-kit/rocks-small',bridge:'nature/bridge_stoneRound',cliff:'nature/cliff_rock'};
  await Promise.all(Object.entries(extraPaths).map(async ([key,path])=>{models[key]=await assets.loadFile(`${path}.glb`)}));
  const batches=new Map();
+ const riverCenter=z=>.65*Math.sin(z*.19);
+ const riverWidth=z=>1.2+.18*Math.sin(z*.31);
+ const terrainHeight=(x,z)=>{
+  // Keep all simulation lanes/base footprints level. Rise only into the scenery.
+  const rise=Math.max(0,Math.min(1,(Math.abs(z)-3.8)/5));
+  const hill=rise*rise*(1.1+.55*Math.sin(x*.27+z*.1));
+  const bankDistance=Math.abs(x-riverCenter(z))-riverWidth(z);
+  if(bankDistance<0)return -.45;
+  if(bankDistance<.7)return -.45+(bankDistance/.7)*(.45+hill);
+  return hill;
+ };
  function prop(name,height,x,z,rotation=0,batch=false){
   const {root}=assets.instance(models[name],height);
   // These rocks are very flat meshes: bound their footprint, not just their height.
@@ -37,7 +47,7 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   }
   const vegetation=['treeA','treeB','shrub','shrubSmall','grass','fern','purple','yellow'];
   const groundLevel=vegetation.includes(name)||name.startsWith('hill')||name.startsWith('rock')||name==='ridge'||name==='pathStone'?-.09:.13;
-  root.position.set(x,groundLevel,z);root.rotation.y=rotation;
+  root.position.set(x,groundLevel+terrainHeight(x,z),z);root.rotation.y=rotation;
   if(!batch){scene.add(root);return root}
   root.updateMatrixWorld(true);
   root.traverse(node=>{if(!node.isMesh)return;const key=`${node.geometry.uuid}:${node.material.uuid}`;
@@ -49,33 +59,45 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  const mesh=(geometry,color,x,y,z)=>{const m=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color,roughness:.85}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m};
  // Seamless terrain instead of a raised, floating rectangular board.
  const ground=new THREE.Mesh(
-   new THREE.PlaneGeometry(220,220),
+   new THREE.PlaneGeometry(100,80,64,64),
    new THREE.MeshStandardMaterial({color:0x667c51,roughness:1})
  );
  ground.rotation.x=-Math.PI/2;
+ const vertices=ground.geometry.attributes.position;
+ for(let i=0;i<vertices.count;i++)vertices.setZ(i,terrainHeight(vertices.getX(i),-vertices.getY(i)));
+ vertices.needsUpdate=true;ground.geometry.computeVertexNormals();
  ground.position.y=-.11;
  ground.receiveShadow=true;
  scene.add(ground);
 
  // A single connected clearing joins the two courtyards. No floating board or grid.
- const clearing=new THREE.Shape();
- clearing.moveTo(-11.6,-2.9);
- for(const [x,z] of [[-9.5,-3.65],[-6.4,-3.45],[-3.8,-2.9],[0,-3.2],[3.8,-2.9],[6.4,-3.45],[9.5,-3.65],[11.6,-2.9],[11.6,2.9],[9.5,3.65],[6.4,3.45],[3.8,2.9],[0,3.2],[-3.8,2.9],[-6.4,3.45],[-9.5,3.65],[-11.6,2.9]])clearing.lineTo(x,z);
- clearing.closePath();
- const road=mesh(new THREE.ShapeGeometry(clearing),0xb6a074,0,-.095,0);
- road.rotation.x=-Math.PI/2;road.castShadow=false;
+ for(const side of [-1,1]){
+  const clearing=new THREE.Shape();clearing.moveTo(side*1.7,-3.1);
+  for(const [x,z] of [[3.8,-2.9],[6.4,-3.45],[9.5,-3.65],[11.6,-2.9],[11.6,2.9],[9.5,3.65],[6.4,3.45],[3.8,2.9],[1.7,3.1]])clearing.lineTo(side*x,z);
+  clearing.closePath();const road=mesh(new THREE.ShapeGeometry(clearing),0xb6a074,0,-.095,0);
+  road.rotation.x=-Math.PI/2;road.castShadow=false;
+ }
  // A continuous river ties foreground and distant scenery together. The bridge is
  // decorative and spans the entire existing soldier corridor; navigation is unchanged.
- const riverShape=new THREE.Shape();riverShape.moveTo(-1.3,-22);
- for(const [x,z] of [[-2.2,-13],[-1.5,-7],[-1.15,-3],[-1.15,3],[-2.4,8],[-1.4,15],[-2,24],[1.3,24],[1.7,15],[.6,8],[1.15,3],[1.15,-3],[1.4,-7],[.6,-13],[1.6,-22]])riverShape.lineTo(x,z);
- riverShape.closePath();const river=mesh(new THREE.ShapeGeometry(riverShape),0x4c9ead,0,-.075,0);
+ const riverShape=new THREE.Shape();riverShape.moveTo(riverCenter(-30)-riverWidth(-30),-30);
+ for(let z=-29;z<=30;z++)riverShape.lineTo(riverCenter(z)-riverWidth(z),z);
+ for(let z=30;z>=-30;z--)riverShape.lineTo(riverCenter(z)+riverWidth(z),z);
+ riverShape.closePath();const river=mesh(new THREE.ShapeGeometry(riverShape),0x4596a7,0,-.3,0);
  river.rotation.x=-Math.PI/2;river.castShadow=false;
- const bridge=assets.instance(models.bridge,.6).root;
+ const bridge=assets.instance(models.bridge,1.1).root;
  bridge.children[0].rotation.y=Math.PI/2;
  bridge.updateMatrixWorld(true);
  const bridgeSize=new THREE.Box3().setFromObject(bridge).getSize(new THREE.Vector3());
- bridge.scale.x*=4.2/bridgeSize.x;bridge.scale.z*=7.8/bridgeSize.z;
- bridge.position.set(0,-.32,0);scene.add(bridge);
+ bridge.scale.x*=4.3/bridgeSize.x;bridge.scale.z*=7.4/bridgeSize.z;
+ bridge.position.set(0,-.8,0);scene.add(bridge);
+ // Interlocking bank rock groups, with low shrubs above the waterline.
+ for(const side of [-1,1])for(const z of [-13,-10,-7,-5,5,7,10,13]){
+  const x=riverCenter(z)+side*(riverWidth(z)+.65);
+  prop('rockKit',.55,x,z,z*.3,true);
+  prop('rockC',.38,x+side*.35,z+.6,z*.2,true);
+  prop('shrubSmall',.35,x+side*.9,z+.3,z*.6,true);
+  if(Math.abs(z)>6)prop('cliff',.9,x+side*1.8,z,-side*Math.PI/2,true);
+ }
  // Hand-composed mirrored groves: tall trees behind, low rocks at the clearing edge.
  // Model choices, positions and scale are intentional; no scattering RNG.
  const grove=[
