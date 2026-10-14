@@ -123,3 +123,65 @@ body{overflow-x:hidden}
   #skill-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   .app>footer{bottom:6px;right:6px}
 }
+
+
+/* Compact bottom decision HUD: never obscure the central firefight. */
+:root{--battle-hud-height:156px}
+.learning-docks{
+  left:0!important;right:0!important;bottom:0!important;
+  transform:none!important;width:100%!important;
+  padding:8px clamp(12px,3vw,52px) 10px!important;
+  background:linear-gradient(0deg,#081620fa 0%,#0c1d2be8 82%,#0c1d2b00 100%);
+  border-top:1px solid #6ca9b34d;
+  max-height:36dvh!important;
+  box-sizing:border-box;
+}
+.learning-docks:has(> .question-panel[hidden]):has(> .selection-dock[hidden]){
+  display:none!important;
+}
+.question-panel,.selection-dock{
+  width:100%!important;max-width:1200px!important;margin:0 auto!important;
+  padding:6px 12px 8px!important;
+  max-height:calc(36dvh - 20px)!important;
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+}
+.selection-dock>.eyebrow,.selection-dock .choice-tip,
+.selection-dock #choice-queue,.selection-dock #skill-feedback{display:none!important}
+.selection-dock h2{display:inline-block;margin:0 16px 6px 0!important;font-size:clamp(13px,1.6vw,19px)!important}
+#skill-timer{display:inline-block!important;font-size:13px!important;margin:0 0 6px!important}
+#skill-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+.skill-card{display:flex!important;flex-direction:row!important;align-items:center!important;
+  min-height:72px!important;max-height:105px!important;padding:8px 10px!important;gap:9px!important;
+  overflow:hidden;background:#183544ed!important;border:1px solid #5c8796!important;border-radius:10px!important}
+.skill-card img{width:38px!important;height:38px!important;flex-shrink:0}
+.skill-card-copy{min-width:0;gap:2px!important}
+.skill-card-copy strong{font-size:clamp(12px,1.15vw,16px)!important}
+.skill-card-copy small{font-size:10px!important}
+.skill-card-copy>span{font-size:11px!important;line-height:1.3!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.question-panel .eyebrow{display:none!important}
+.question-panel h2{font-size:clamp(15px,1.65vw,21px)!important;line-height:1.2!important;margin:0 0 7px!important}
+.question-panel p,.question-panel small{font-size:11px!important;margin:0 0 4px!important}
+.question-options{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:5px 0 0!important}
+.question-options button{min-height:54px!important;padding:7px!important}
+.app>footer{bottom:calc(var(--battle-hud-height) + 8px)}
+.battle-layout:has(.learning-docks > .question-panel:not([hidden])) .arena-shell,
+.battle-layout:has(.learning-docks > .selection-dock:not([hidden])) .arena-shell{
+  /* Reserve lower space by keeping the canvas in a shallower viewport.
+     ResizeObserver updates the orthographic camera automatically. */
+  bottom:var(--battle-hud-height)!important;
+  height:calc(100% - var(--battle-hud-height))!important;
+}
+@media(max-width:700px){
+  :root{--battle-hud-height:190px}
+  .learning-docks{bottom:0!important;padding:6px 8px 10px!important;max-height:45dvh!important}
+  .question-panel,.selection-dock{max-height:calc(45dvh - 16px)!important;padding:5px!important}
+  #skill-cards{gap:5px!important}
+  .skill-card{min-height:90px!important;max-height:120px!important;flex-direction:column!important;padding:5px 3px!important;gap:4px!important}
+  .skill-card img{width:24px!important;height:24px!important}
+  .skill-card-copy strong{font-size:10px!important}
+  .skill-card-copy small,.skill-card-copy>span{font-size:9px!important;line-height:1.15!important}
+  .question-options{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+  .question-options button{min-height:44px!important}
+  .app>footer{bottom:calc(var(--battle-hud-height) + 4px)}
+}
