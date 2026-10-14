@@ -8,9 +8,14 @@ export class BattleAudio {
     this.samples={
       level:'maximize_001.ogg',selected:'confirmation_001.ogg',
       click:'confirmation_001.ogg',correct:'maximize_001.ogg',
+      wrong:'error_001.ogg',turn:'drop_001.ogg',
+      shot:'blade_01.ogg',hit:'impactSoft_medium_000.ogg',
+      death:'creature_die_01.ogg',base:'impactWood_heavy_000.ogg',
+      finish:'item_gem_01.ogg',spawn:'item_misc_01.ogg',
+      fire:'spell_fire_01.ogg',lightning:'lightning_01.ogg',
     };
     this.voices=Object.fromEntries(Object.entries(this.samples).map(([key,file])=>[
-      key,Array.from({length:key==='click'?3:2},()=>{const a=new Audio(root+file);a.preload='auto';a.volume=key==='click'?.11:.2;return a;})
+      key,Array.from({length:key==='click'?3:2},()=>{const a=new Audio(root+file);a.preload='auto';a.volume=({click:.1,shot:.075,hit:.095,death:.12,base:.14,spawn:.065,fire:.13,lightning:.13,correct:.25,wrong:.16,level:.25,finish:.26}[key]??.16);return a;})
     ]));
     this.button=document.getElementById('sound-toggle');
     this.onToggle=()=>{this.enabled=!this.enabled;this.mutedByUser=!this.enabled;this.refresh();if(this.enabled){this.resume();this.play('selected');}};
@@ -52,7 +57,7 @@ export class BattleAudio {
     if(event.type==='level-up')this.play('level');
     if(event.type==='skill-selected')this.play('selected');
     if(event.type==='question-answer')this.play(event.correct?'correct':'wrong');
-    if(event.type==='spawn'&&this.throttle('spawn',1200))this.tone(260,.075,'sine',.012,-80);
+    if(event.type==='spawn'&&this.throttle('spawn',1200))this.play('spawn');
     if(event.type==='shot'&&this.throttle('shot',100))this.play('shot');
     if(event.type==='hit'&&this.throttle('hit',125))this.play(event.base?'base':'hit');
     if(event.type==='death'&&this.throttle('death',250))this.play('death');
