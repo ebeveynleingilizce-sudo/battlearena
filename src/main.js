@@ -50,16 +50,19 @@ async function main() {
     const width = host.clientWidth, height = host.clientHeight;
     renderer.setSize(width, height);
     const aspect = width / height;
-    const box = new THREE.Box3(new THREE.Vector3(-12.6, -1, -8.6), new THREE.Vector3(12.6, 4, 8.6));
-    let maxX = 0, maxY = 0;
-    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
-      const p = new THREE.Vector3(x, y, z).applyMatrix4(camera.matrixWorldInverse);
-      maxX = Math.max(maxX, Math.abs(p.x));
-      maxY = Math.max(maxY, Math.abs(p.y));
-    }
-    // Bring the battlefield closer on wide monitors; preserve the full arena on narrow screens.
-    const zoom = aspect >= 1.5 ? 0.72 : 0.94;
-    const half = Math.max(maxY, maxX / aspect) * zoom;
+    // Fit the actual playable ground, not an oversized 3D bounding box.
+    // Landscape viewports prioritize ground visibility; preserve edge margins.
+    const ground = [
+      new THREE.Vector3(-12.6, 0, -8.6),
+      new THREE.Vector3(-12.6, 0, 8.6),
+      new THREE.Vector3(12.6, 0, -8.6),
+      new THREE.Vector3(12.6, 0, 8.6),
+    ];
+    const projected = ground.map(point => point.applyMatrix4(camera.matrixWorldInverse));
+    const spanX = Math.max(...projected.map(p=>p.x))-Math.min(...projected.map(p=>p.x));
+    const spanY = Math.max(...projected.map(p=>p.y))-Math.min(...projected.map(p=>p.y));
+    // Small safety margin for soldiers, towers and projected arena corners.
+    const half = Math.max(spanY * 0.62, spanX / aspect * 0.58);
     camera.left = -half * aspect; camera.right = half * aspect;
     camera.top = half; camera.bottom = -half;
     camera.updateProjectionMatrix();
