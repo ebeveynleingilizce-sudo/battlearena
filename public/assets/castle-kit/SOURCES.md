@@ -1,0 +1,1 @@
+Kenney Castle Kit, CC0. Original License.txt retained. Six used GLB files only: tower-square, wall-narrow, wall-narrow-stairs, wall-doorway, wall-pillar, rocks-small. Shared external palette texture included. Models are decorative; no siege or collision mechanics are added.

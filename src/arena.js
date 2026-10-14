@@ -4,7 +4,6 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  const bases=[];
  const paths={
   blueCastle:'buildings/blue/building_castle_blue',redCastle:'buildings/red/building_castle_red',
-  blueTower:'buildings/blue/building_tower_A_blue',redTower:'buildings/red/building_tower_A_red',
   wall:'buildings/neutral/wall_straight',gate:'buildings/neutral/wall_straight_gate',
   treeA:'decoration/nature/tree_single_A',treeB:'decoration/nature/tree_single_B',
   rockA:'decoration/nature/rock_single_A',rockC:'decoration/nature/rock_single_C',
@@ -16,7 +15,8 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   fence:'buildings/neutral/fence_wood_straight'
  };
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
- const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart'};
+ const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart',
+  castleTower:'castle-kit/tower-square',castleWall:'castle-kit/wall-narrow',castleStairs:'castle-kit/wall-narrow-stairs',castleDoor:'castle-kit/wall-doorway',pillar:'castle-kit/wall-pillar',rockKit:'castle-kit/rocks-small'};
  await Promise.all(Object.entries(extraPaths).map(async ([key,path])=>{models[key]=await assets.loadFile(`${path}.glb`)}));
  const batches=new Map();
  function prop(name,height,x,z,rotation=0,batch=false){
@@ -119,11 +119,19 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   bases.push({tower,platform,flash:0,x:baseX});
   // Connected U-shaped walls surround each court, leaving the combat-facing side open.
   for(const z of [-4.15,4.15]){
-   prop(side===-1?'blueTower':'redTower',2.8,side*10.9,z);
+   prop('castleTower',2.6,side*10.9,z);
+   const banner=prop(side===-1?'blueFlag':'redFlag',.85,side*10.9,z);
+   banner.position.y+=2.6;
    for(const x of [7.1,9.2])prop('wall',1.15,side*x,z);
+   prop('pillar',1.15,side*6.15,z,0,true);
   }
   prop('gate',1.65,side*11.1,0,Math.PI/2);
   for(const z of [-2.8,2.8])prop('wall',1.15,side*11.1,z,Math.PI/2);
+  prop('castleStairs',1.15,side*9.8,-3.5,side*Math.PI/2,true);
+  prop('castleDoor',1.15,side*13.6,-4.5,Math.PI/2,true);
+  for(const z of [-5.4,-6.25])prop('castleWall',1.15,side*13.6,z,0,true);
+  prop('rockKit',.65,side*14.6,-3.6,.4,true);
+  prop('rockKit',.45,side*5.5,5.2,1.2,true);
  }
  // Shared geometry/materials keep the forest to a few instanced draw calls.
  for(const {geometry,material,matrices} of batches.values()){
