@@ -33,7 +33,7 @@ async function main() {
   renderer.toneMappingExposure = 1.25;
   host.append(renderer.domElement);
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x617b48);
+  scene.background = new THREE.Color(0x29474b);
   scene.add(new THREE.HemisphereLight(0xe4f4ff, 0x64724c, 2.4));
   const sun = new THREE.DirectionalLight(0xffe5bf, 3.2);
   sun.position.set(-9, 18, 10);
@@ -43,21 +43,26 @@ async function main() {
   sun.shadow.normalBias = 0.04;
   scene.add(sun);
   const camera = new THREE.OrthographicCamera(-18, 18, 12, -12, 0.1, 100);
-  camera.position.set(18, 26, 26);
+  camera.position.set(25, 27, 25);
   camera.lookAt(0, 0, 0);
   camera.updateMatrixWorld();
   function resize() {
     const width = host.clientWidth, height = host.clientHeight;
     renderer.setSize(width, height);
     const aspect = width / height;
-    const box = new THREE.Box3(new THREE.Vector3(-14.5, 0, -9.5), new THREE.Vector3(14.5, 4.3, 9.5));
-    let maxX = 0, maxY = 0;
-    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
-      const p = new THREE.Vector3(x, y, z).applyMatrix4(camera.matrixWorldInverse);
-      maxX = Math.max(maxX, Math.abs(p.x));
-      maxY = Math.max(maxY, Math.abs(p.y));
-    }
-    const half = Math.max(maxY, maxX / aspect);
+    // Fit the actual playable ground, not an oversized 3D bounding box.
+    // Landscape viewports prioritize ground visibility; preserve edge margins.
+    const ground = [
+      new THREE.Vector3(-12.6, 0, -8.6),
+      new THREE.Vector3(-12.6, 0, 8.6),
+      new THREE.Vector3(12.6, 0, -8.6),
+      new THREE.Vector3(12.6, 0, 8.6),
+    ];
+    const projected = ground.map(point => point.applyMatrix4(camera.matrixWorldInverse));
+    const spanX = Math.max(...projected.map(p=>p.x))-Math.min(...projected.map(p=>p.x));
+    const spanY = Math.max(...projected.map(p=>p.y))-Math.min(...projected.map(p=>p.y));
+    // Small safety margin for soldiers, towers and projected arena corners.
+    const half = Math.max(spanY * 0.53, spanX / aspect * 0.51);
     camera.left = -half * aspect; camera.right = half * aspect;
     camera.top = half; camera.bottom = -half;
     camera.updateProjectionMatrix();
@@ -71,12 +76,12 @@ async function main() {
   });
   const assets = new AssetLibrary(panel);
   const arena = await createArena(scene, assets);
-  const simulation = new BattleSimulation({...BATTLE_CONFIG,seed:nextSeed()},validateBank(questionBank));
+  const simulation = new BattleSimulation({...BATTLE_CONFIG,hotseat:true,seed:nextSeed()},validateBank(questionBank));
   const view = await BattleView.create(scene, assets, arena, BATTLE_CONFIG, panel);
   const clock = new FixedStepClock(BATTLE_CONFIG.tickRate);
   const ui = createBattleUI(simulation, view, restart);
   const audio = new BattleAudio();
-  const player=createLocalPlayer();
+  const player=createLocalPlayer(simulation);
   const skillUI = createSkillUI(simulation,audio,player);
   const questionUI=createQuestionUI(simulation,player);
   player.subscribe(()=>{skillUI.update();questionUI.update();});
@@ -85,7 +90,7 @@ async function main() {
     const controls=document.getElementById('qa-controls');controls.hidden=false;
     const replay=predicate=>{
       for(let i=0;i<simulation.config.tickRate*120&&simulation.status==='running';i++){
-        simulation.step();view.consume(simulation.events);skillUI.consume(simulation.events);
+        simulation.step();player.refresh();view.consume(simulation.events);skillUI.consume(simulation.events);
         view.update(simulation,1,1/simulation.config.tickRate,camera);
         if(predicate())break;
       }
@@ -130,6 +135,7 @@ async function main() {
     skillUI.reset();
     questionUI.reset();
     audio.reset();
+    player.refresh();
     view.update(simulation, 1, 0, camera);
     ui.update(renderer);
     skillUI.update();
@@ -146,7 +152,7 @@ async function main() {
   renderer.setAnimationLoop(now => {
     const dt = Math.max(0, (now - previous) / 1000);
     previous = now;
-    const alpha = clock.advance(dt, () => { simulation.step(); view.consume(simulation.events); skillUI.consume(simulation.events); },
+    const alpha = clock.advance(dt, () => { simulation.step(); player.refresh(); view.consume(simulation.events); skillUI.consume(simulation.events); },
       () => simulation.status === 'running' && !view.lab.enabled);
     const visualDt = Math.min(dt, 0.1);
     if (simulation.status === 'finished') view.effects.clear();

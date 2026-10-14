@@ -17,7 +17,7 @@ export function createQuestionUI(sim,player){
     const team=player.team;
     const t=sim.questions.teams[team],blocked=sim.teams[team].pending.length>0;
     const a=t.active,f=t.feedback&&t.feedback.until>sim.tick?t.feedback:null;
-    panel.hidden=blocked||sim.status!=='running';
+    panel.hidden=blocked||sim.status!=='running'||(!a&&!f);
     panel.dataset.team=team;
     panel.dataset.bonuses=t.stats.bonuses;
     panel.dataset.shieldUntil=t.bonuses.shieldUntil;
