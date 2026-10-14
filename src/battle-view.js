@@ -48,6 +48,15 @@ export class BattleView {
     if (!actor) {
       const gltf = this.models[unit.variant];
       const { root, model } = this.assets.instance(gltf, 1.65);
+      const clothing=[];
+      model.traverse(node=>{
+        if(!node.isMesh)return;
+        const tint=material=>{
+          if(!['Character_Main','Hazmat_Main','Enemy_Red','Pants'].includes(material.name))return material;
+          const copy=material.clone();clothing.push(copy);return copy;
+        };
+        node.material=Array.isArray(node.material)?node.material.map(tint):tint(node.material);
+      });
       model.traverse(node => { if (WEAPONS.has(node.name)) node.visible = node.name === 'SMG'; });
       const mixer = new THREE.AnimationMixer(model);
       const actions = {};
@@ -71,10 +80,10 @@ export class BattleView {
       bar.position.y = 2;
       root.add(bar);
       const burnSprite=new THREE.Sprite(this.effects.fireMaterial);
-      burnSprite.scale.set(2.4,3,1);burnSprite.position.y=1.1;burnSprite.visible=false;
+      burnSprite.scale.set(1.05,1.45,1);burnSprite.position.y=1.1;burnSprite.visible=false;
       root.add(burnSprite);
       this.scene.add(root);
-      actor = { root, model, mixer, actions, ring, bar, fill,burnSprite,variant: unit.variant,
+      actor = { root, model, mixer, actions, ring, bar, fill,burnSprite,clothing,variant: unit.variant,
         unitID: null, current: null, gun: model.getObjectByName('SMG'), lastHit: -1 };
       actor.gun?.geometry?.computeBoundingBox();
       this.pool.push(actor);
@@ -82,6 +91,7 @@ export class BattleView {
     actor.unitID = unit.id;
     actor.root.visible = true;
     actor.ring.material = this.ringMaterials[unit.team];
+    actor.clothing.forEach(material=>{material.color.setHex(unit.team===0?0x428dd5:0xd95c4d);material.emissive?.setHex(0);});
     actor.bar.visible = true;
     actor.burnSprite.visible=false;
     actor.current = null;
@@ -129,6 +139,7 @@ export class BattleView {
 
   update(simulation, alpha, dt, camera) {
     this.effects.reducedMotion=this.motionPreference.matches;
+    this.effects.focusMode=!document.getElementById('question-panel').hidden;
     this.lab.time += dt;
     for (const unit of simulation.units) {
       const actor = this.actors.get(unit.id) ?? this.acquire(unit);
@@ -140,8 +151,12 @@ export class BattleView {
       const restartHit = state === 'HitReact' && actor.lastHit !== unit.hitUntil;
       if (restartHit) actor.lastHit = unit.hitUntil;
       this.setAnimation(actor, state, restartHit);
+      actor.actions.Shoot.setEffectiveTimeScale(simulation.teams[unit.team].stats.fireRate/simulation.config.fireRate);
       actor.mixer.update(dt);
-      actor.bar.visible = unit.hp > 0;
+      actor.ring.visible=unit.hp>0;
+      actor.bar.visible = unit.hp > 0&&unit.hp<unit.maxHP;
+      const hit=Math.max(0,(unit.hitUntil-simulation.tick)/simulation.config.tickRate);
+      for(const material of actor.clothing){if(material.emissive){material.emissive.setHex(hit>0?0xffd7ad:0);material.emissiveIntensity=hit>0?.45:0;}}
       actor.bar.quaternion.copy(camera.quaternion);
       this.inverseRotation.copy(actor.root.quaternion).invert();
       actor.bar.quaternion.premultiply(this.inverseRotation);
@@ -226,6 +241,7 @@ export class BattleView {
       actor.mixer.stopAllAction();
       actor.mixer.uncacheRoot(actor.model);
       actor.model.traverse(node => { if (node.isSkinnedMesh) node.skeleton.dispose(); });
+      for(const material of actor.clothing)material.dispose();
       this.scene.remove(actor.root);
     }
     this.pool.length = 0;

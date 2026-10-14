@@ -5,6 +5,7 @@ import * as THREE from 'three';
 export class BattleEffects {
   constructor(scene, config) {
     this.scene = scene;
+    this.damage=config.damage;this.baseDamage=config.baseDamage;
     this.geometries = [new THREE.CapsuleGeometry(0.035, 0.25, 2, 5), new THREE.OctahedronGeometry(1)];
     this.materials = [0x65cfff,0xff977a,0xb7efff,0xffe7a8].map(color => new THREE.MeshBasicMaterial({ color }));
     this.flashMaterial = new THREE.MeshBasicMaterial({ color: 0xffe5a0, transparent: true, opacity: 0.95 });
@@ -121,9 +122,12 @@ export class BattleEffects {
   }
 
   impact(event) {
-    this.flash(event.x, event.base ? 1.5 : 1.1, event.z, event.base ? 0.4 : 0.2, 0.22);
-    for (let i = 0; i < 4; i++) {
-      const angle = i * Math.PI / 2;
+    const strength=Math.min(1.65,Math.max(.65,event.amount/(event.base?this.baseDamage:this.damage)));
+    const material=event.kind==='burn'?this.fireBulletMaterial:strength>1?this.heavyBulletMaterial:this.flashMaterial;
+    this.flash(event.x,event.base?1.5:1.1,event.z,(event.base?.3:.16)*strength,.16,0,0,material);
+    const count=this.focusMode||this.reducedMotion?0:strength>1?3:2;
+    for (let i = 0; i < count; i++) {
+      const angle = i * Math.PI *2/count;
       this.flash(event.x, 1.1, event.z, 0.07, 0.28, Math.cos(angle) * 2, Math.sin(angle) * 2);
     }
   }
@@ -135,6 +139,10 @@ export class BattleEffects {
       const mesh = this.bullets[p.id];
       mesh.visible = p.active;
       if (!p.active) continue;
+      if(p.burnDamage>0&&!this.focusMode&&!this.reducedMotion&&this.elapsed>(mesh.userData.trailAfter??0)){
+        mesh.userData.trailAfter=this.elapsed+.12;
+        this.flash(p.previousX,1.15,p.previousZ,.045,.16,0,0,this.fireBulletMaterial);
+      }
       mesh.material=p.burnDamage>0?this.fireBulletMaterial:p.damage>simulation.config.damage?this.heavyBulletMaterial:this.materials[p.team+(p.second?2:0)];
       mesh.scale.setScalar(Math.min(1.7,p.damage/simulation.config.damage)*(p.second?1.1:1));
       mesh.position.set(p.previousX + (p.x - p.previousX) * alpha, 1.15,
@@ -170,7 +178,7 @@ export class BattleEffects {
   }
 
   clear() {
-    for (const mesh of this.bullets) mesh.visible = false;
+    for (const mesh of this.bullets) {mesh.visible=false;mesh.userData.trailAfter=0;}
     for (const slot of this.flashes) { slot.mesh.visible = false; slot.time = 0; }
     for(const slot of this.lightning){slot.line.visible=false;slot.time=0;}
     for(const slot of this.heals){slot.sprite.visible=false;slot.time=0;}

@@ -54,6 +54,10 @@ export function createSkillUI(simulation,audio,player) {
       audio.readingQuestion=Boolean(questions.active||questions.feedback?.until>simulation.tick)&&simulation.teams[player.team].pending.length===0;
       for(const event of events){
         audio.consume(event);
+        if(event.type==='xp'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+          const bar=teams[event.team].bar;bar.getAnimations().forEach(animation=>animation.cancel());
+          bar.animate([{filter:'brightness(1.5)'},{filter:'brightness(1)'}],{duration:240});
+        }
         if(event.type==='level-up'){
           if(!matchMedia('(prefers-reduced-motion: reduce)').matches)teams[event.team].level.animate([{color:'#e9efb2'},{color:'#fff6a2'},{color:'#e9efb2'}],{duration:600});
           if(event.team===player.team)notify(`LEVEL UP! ${event.team===0?'Mavi':'Kırmızı'} takım · Level ${event.level}`);

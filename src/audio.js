@@ -79,6 +79,7 @@ export class BattleAudio {
       this.cue('selected',motifs[event.skillID]??[523,784],2,'triangle');
     }
     if(event.type==='question-answer')this.cue(event.correct?'correct':'wrong',event.correct?[523,659,1047]:[294,262],3);
+    if(event.type==='xp'&&!this.readingQuestion&&performance.now()>this.priorityUntil&&this.throttle('xp',1300))this.tone(880,.065,'sine',.012);
     if(event.type==='shot'&&this.throttle('combat',450))this.play('shot');
     if(event.type==='hit'&&event.base&&this.throttle('base',650))this.play('base');
     if(event.type==='finish')this.cue('finish',event.result?.winner===null?[392,523]:[523,659,784,1047],4,'triangle');
