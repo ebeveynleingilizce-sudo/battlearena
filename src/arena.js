@@ -3,7 +3,38 @@ import { BATTLE_CONFIG } from './config.js';
 export async function createArena(scene,assets,config=BATTLE_CONFIG){
  const bases=[];
  const mesh=(geometry,color,x,y,z)=>{const m=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color,roughness:.85}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m};
- mesh(new THREE.BoxGeometry(24,.85,16),0x425957,0,-.48,0);mesh(new THREE.BoxGeometry(23.6,.12,15.6),0x77967a,0,0,0);
+ // Seamless terrain instead of a raised, floating rectangular board.
+ const ground=new THREE.Mesh(
+   new THREE.PlaneGeometry(220,220),
+   new THREE.MeshStandardMaterial({color:0x647e67,roughness:1})
+ );
+ ground.rotation.x=-Math.PI/2;
+ ground.position.y=-.11;
+ ground.receiveShadow=true;
+ scene.add(ground);
+ // The playable area is a subtle ground-color variation, not a thick slab.
+ const field=new THREE.Mesh(
+   new THREE.PlaneGeometry(24,16),
+   new THREE.MeshStandardMaterial({color:0x77967a,roughness:1})
+ );
+ field.rotation.x=-Math.PI/2;
+ field.position.y=-.085;
+ field.receiveShadow=true;
+ scene.add(field);
+ // Soft surrounding terrain patches add depth without obscuring the battle.
+ const patches=new THREE.Group();
+ const patchMaterial=new THREE.MeshStandardMaterial({color:0x738e72,roughness:1,transparent:true,opacity:.45,depthWrite:false});
+ for(let i=0;i<54;i++){
+   const angle=i*2.399963229728653, distance=12+Math.sqrt(i/54)*24;
+   const x=Math.cos(angle)*distance,z=Math.sin(angle)*distance;
+   if(Math.abs(x)<13&&Math.abs(z)<9)continue;
+   const patch=new THREE.Mesh(new THREE.CircleGeometry(.7+(i%5)*.33,12),patchMaterial);
+   patch.rotation.x=-Math.PI/2;patch.rotation.z=(i*1.37)%6.28;
+   patch.scale.set(1.7,.65,1);
+   patch.position.set(x,-.096,z);
+   patches.add(patch);
+ }
+ scene.add(patches);
  mesh(new THREE.BoxGeometry(19,.03,5.2),0xaab59a,0,.08,0);
  for(let x=-10;x<=10;x+=2)for(const z of [-6.9,6.9])mesh(new THREE.BoxGeometry(1.7,.09,.12),0xb5c6a4,x,.12,z);
  const ring=(x,z,color,r=1.4)=>{const m=mesh(new THREE.RingGeometry(r-.07,r,64),color,x,.13,z);m.rotation.x=-Math.PI/2;return m};
