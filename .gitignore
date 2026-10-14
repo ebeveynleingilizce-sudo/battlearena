@@ -1,4 +1,7 @@
 node_modules/
+artifacts/balance-candidate*
+artifacts/prepare-deploy.mjs
+artifacts/github-publish.ps1
 dist/
 *.log
 

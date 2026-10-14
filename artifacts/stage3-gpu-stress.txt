@@ -1,0 +1,110 @@
+PASS · Aşama 3 · 8 × 300 saniye / 72.000 tick
+Sekiz skill / yanma / yıldırım / can çalma / çift atış test edildi.
+Havuzlar ve GPU kaynakları ısınmadan sonra sabit.
+Yeniden başlatma doğrulandı.
+[
+  {
+    "match": 1,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 2,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 3,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 4,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 5,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 6,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 7,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  },
+  {
+    "match": 8,
+    "actors": 16,
+    "geometries": 95,
+    "textures": 101,
+    "programs": 10,
+    "deaths": 82,
+    "baseHits": 2866,
+    "doubleShots": 2436,
+    "burnHits": 439,
+    "chainHits": 310,
+    "healing": 5882
+  }
+]
