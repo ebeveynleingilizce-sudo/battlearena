@@ -12,7 +12,7 @@ export class BattleAudio {
       shot:'blade_01.ogg',hit:'impactSoft_medium_000.ogg',
       death:'creature_die_01.ogg',base:'impactWood_heavy_000.ogg',
       finish:'item_gem_01.ogg',spawn:'item_misc_01.ogg',
-      fire:'spell_fire_01.ogg',lightning:'lightning_01.ogg',
+      fire:'spell_fire_01.ogg',lightning:'lightning_01.wav',
     };
     this.voices=Object.fromEntries(Object.entries(this.samples).map(([key,file])=>[
       key,Array.from({length:key==='click'?3:2},()=>{const a=new Audio(root+file);a.preload='auto';a.volume=({click:.1,shot:.075,hit:.095,death:.12,base:.14,spawn:.065,fire:.13,lightning:.13,correct:.25,wrong:.16,level:.25,finish:.26}[key]??.16);return a;})
