@@ -42,9 +42,31 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  const names=['WaterTank_Platform','Container_Small','Crate','Tree_1','Tree_3','Barrier_Large'];
  const models=await Promise.all(names.map(n=>assets.load('Environment',n)));
  function prop(name,height,x,z,rotation=0){const {root}=assets.instance(models[names.indexOf(name)],height);root.position.set(x,.13,z);root.rotation.y=rotation;scene.add(root);return root}
+
+// Fantasy castle silhouettes flank the battlefield without blocking the central lane.
+ const stone=0xb9b3a3,trim=0x777a78;
+ function castle(side,x,color){
+   const outer=side*1.9;
+   // Back curtain wall and four battlement towers, offset away from combat.
+   mesh(new THREE.BoxGeometry(.55,1.65,6.5),stone,x+outer,.82,0);
+   for(const z of [-3.2,3.2]){
+     const tx=x+outer;
+     mesh(new THREE.CylinderGeometry(.67,.76,2.65,8),stone,tx,1.26,z);
+     mesh(new THREE.CylinderGeometry(.84,.84,.22,8),trim,tx,2.65,z);
+     const roof=mesh(new THREE.ConeGeometry(.85,1.15,8),color,tx,3.35,z);
+     roof.castShadow=true;
+   }
+   for(let z=-2.5;z<=2.5;z+=.85)mesh(new THREE.BoxGeometry(.72,.4,.47),stone,x+outer,1.85,z);
+   // Team banners remain readable even when the arena is viewed from above.
+   for(const z of [-2.2,2.2]){
+     mesh(new THREE.CylinderGeometry(.045,.045,2.2,6),trim,x+outer,3,z);
+     mesh(new THREE.BoxGeometry(.08,.86,.65),color,x+outer,3.55,z+.34);
+   }
+ }
  for(const side of [-1,1]){
   const color=side===-1?0x55baff:0xff7668;
   const baseX=side*config.baseX;
+  castle(side,baseX,color);
   const platform=mesh(new THREE.CylinderGeometry(2.05,2.2,.24,48),color,baseX,.15,0);ring(baseX,0,0xf3e7c8,2.25);
   const tower=prop('WaterTank_Platform',2.7,baseX,0);
   bases.push({tower,platform,flash:0,x:baseX});
