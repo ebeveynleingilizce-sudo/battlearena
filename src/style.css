@@ -185,3 +185,80 @@ body{overflow-x:hidden}
   .question-options button{min-height:44px!important}
   .app>footer{bottom:calc(var(--battle-hud-height) + 4px)}
 }
+
+
+/* Match skill selection to the question HUD: identical width, surface and answer-like cards. */
+.selection-dock{
+  width:100%!important;
+  max-width:1200px!important;
+  padding:6px 12px 8px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.selection-dock h2{
+  display:block!important;
+  text-align:center!important;
+  font-size:clamp(15px,1.65vw,21px)!important;
+  line-height:1.2!important;
+  margin:0 0 7px!important;
+  color:#edf6f7!important;
+}
+#skill-timer{
+  display:block!important;
+  text-align:left!important;
+  margin:0 0 7px!important;
+  color:#bcd5dc!important;
+  font-size:11px!important;
+}
+#skill-cards{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:5px!important;
+}
+#skill-cards .skill-card{
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:center!important;
+  align-items:center!important;
+  min-height:68px!important;
+  max-height:76px!important;
+  padding:7px 10px!important;
+  border:1px solid #3b596a!important;
+  border-radius:10px!important;
+  background:#1b3040!important;
+  color:#edf6f7!important;
+  box-shadow:none!important;
+  transition:background .2s,border-color .2s,transform .2s!important;
+}
+#skill-cards .skill-card:hover{
+  background:#294657!important;
+  border-color:#85bfcc!important;
+  transform:translateY(-2px);
+}
+#skill-cards .skill-card img{
+  width:30px!important;height:30px!important;object-fit:contain!important;
+}
+#skill-cards .skill-card-copy{min-width:0!important;text-align:left!important}
+#skill-cards .skill-card-copy strong{
+  font-size:clamp(13px,1.2vw,17px)!important;
+  color:#edf6f7!important;
+}
+#skill-cards .skill-card-copy small{display:none!important}
+#skill-cards .skill-card-copy>span{
+  font-size:10px!important;color:#bcd0d7!important;
+  -webkit-line-clamp:1!important;
+}
+@media(max-width:700px){
+  .selection-dock{padding:5px!important}
+  #skill-cards{gap:5px!important}
+  #skill-cards .skill-card{
+    flex-direction:column!important;min-height:70px!important;max-height:84px!important;
+    padding:5px 3px!important;gap:3px!important;
+  }
+  #skill-cards .skill-card img{width:22px!important;height:22px!important}
+  #skill-cards .skill-card-copy{text-align:center!important}
+  #skill-cards .skill-card-copy strong{font-size:10px!important}
+  #skill-cards .skill-card-copy>span{display:none!important}
+}
