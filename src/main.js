@@ -62,7 +62,7 @@ async function main() {
     const spanX = Math.max(...projected.map(p=>p.x))-Math.min(...projected.map(p=>p.x));
     const spanY = Math.max(...projected.map(p=>p.y))-Math.min(...projected.map(p=>p.y));
     // Small safety margin for soldiers, towers and projected arena corners.
-    const half = Math.max(spanY * 0.62, spanX / aspect * 0.58);
+    const half = Math.max(spanY * 0.53, spanX / aspect * 0.51);
     camera.left = -half * aspect; camera.right = half * aspect;
     camera.top = half; camera.bottom = -half;
     camera.updateProjectionMatrix();
