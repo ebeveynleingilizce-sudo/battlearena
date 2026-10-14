@@ -1,6 +1,7 @@
 import { BATTLE_CONFIG } from './config.js';
 import { ProgressionSystem } from './progression.js';
 import { QuestionSystem } from './questions.js';
+import { HotseatTurns } from './hotseat-turns.js';
 
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -31,6 +32,7 @@ export class BattleSimulation {
     this.progression = new ProgressionSystem(c,this.matchID);
     this.teams = this.progression.teams;
     this.questions=new QuestionSystem(c,this.matchID,this.questionBank);
+    this.hotseat=c.hotseat?new HotseatTurns():null;
     this.commands = [];
     this.commandResults = [];
     this.bases = [
@@ -346,10 +348,21 @@ export class BattleSimulation {
     const c = this.config;
     this.events.length = 0;
     this.tick++;
+    if(this.hotseat){
+      this.hotseat.update(this);
+      for(const team of [0,1])if(team!==this.hotseat.team){
+        const q=this.questions.teams[team];
+        if(q.active)q.active.deadline++;
+        if(q.feedback)q.feedback.until++;
+        const right=this.teams[team].pending[0];
+        if(right?.deadline!=null)right.deadline++;
+      }
+    }
     this.questions.step(this);
     this.processCommands();
     for(const team of this.teams){const command=this.progression.automaticCommand(team,this.tick);if(command)this.commands.push(command);}
     if(this.commands.length)this.processCommands();
+    this.hotseat?.update(this);
     for(const t of this.questions.teams)if(t.active)t.active.blocked=this.teams[t.team].pending.length>0;
     const dt = 1 / c.tickRate;
     // Move all actors before computing any attacks: order cannot favour one team.

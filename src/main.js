@@ -71,12 +71,12 @@ async function main() {
   });
   const assets = new AssetLibrary(panel);
   const arena = await createArena(scene, assets);
-  const simulation = new BattleSimulation({...BATTLE_CONFIG,seed:nextSeed()},validateBank(questionBank));
+  const simulation = new BattleSimulation({...BATTLE_CONFIG,hotseat:true,seed:nextSeed()},validateBank(questionBank));
   const view = await BattleView.create(scene, assets, arena, BATTLE_CONFIG, panel);
   const clock = new FixedStepClock(BATTLE_CONFIG.tickRate);
   const ui = createBattleUI(simulation, view, restart);
   const audio = new BattleAudio();
-  const player=createLocalPlayer();
+  const player=createLocalPlayer(simulation);
   const skillUI = createSkillUI(simulation,audio,player);
   const questionUI=createQuestionUI(simulation,player);
   player.subscribe(()=>{skillUI.update();questionUI.update();});
@@ -85,7 +85,7 @@ async function main() {
     const controls=document.getElementById('qa-controls');controls.hidden=false;
     const replay=predicate=>{
       for(let i=0;i<simulation.config.tickRate*120&&simulation.status==='running';i++){
-        simulation.step();view.consume(simulation.events);skillUI.consume(simulation.events);
+        simulation.step();player.refresh();view.consume(simulation.events);skillUI.consume(simulation.events);
         view.update(simulation,1,1/simulation.config.tickRate,camera);
         if(predicate())break;
       }
@@ -130,6 +130,7 @@ async function main() {
     skillUI.reset();
     questionUI.reset();
     audio.reset();
+    player.refresh();
     view.update(simulation, 1, 0, camera);
     ui.update(renderer);
     skillUI.update();
