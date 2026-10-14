@@ -12,7 +12,14 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
  const batches=new Map();
  function prop(name,height,x,z,rotation=0,batch=false){
-  const {root}=assets.instance(models[name],height);root.position.set(x,.13,z);root.rotation.y=rotation;
+  const {root}=assets.instance(models[name],height);
+  // These rocks are very flat meshes: bound their footprint, not just their height.
+  if(name.startsWith('rock')){
+   const size=new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3());
+   const footprint=Math.max(size.x,size.z);
+   if(footprint>height*1.6)root.scale.multiplyScalar(height*1.6/footprint);
+  }
+  root.position.set(x,.13,z);root.rotation.y=rotation;
   if(!batch){scene.add(root);return root}
   root.updateMatrixWorld(true);
   root.traverse(node=>{if(!node.isMesh)return;const key=`${node.geometry.uuid}:${node.material.uuid}`;
