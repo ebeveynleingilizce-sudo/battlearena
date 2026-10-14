@@ -65,3 +65,61 @@
   .skill-card img {width: 44px;height: 44px;}
   footer {padding: 12px 0;}
 }
+
+
+/* Arena-first game HUD. Keep simulation/UI element IDs intact. */
+html,body{min-height:100%;background:#101d25}
+body{overflow-x:hidden}
+.app{max-width:none!important;width:100%;padding:0!important}
+.app>header{display:none!important}
+.battle-layout,.battle-layout:has(.selection-dock:not([hidden])){display:block!important;position:relative;width:100%;height:100dvh;min-height:480px}
+.arena-shell{position:absolute;inset:0;width:100%;height:100%!important;max-height:none!important;min-height:0!important;border:0;border-radius:0;overflow:hidden}
+#viewport{position:absolute;inset:0}
+.player-strip{position:fixed;z-index:31;left:50%;top:12px;transform:translateX(-50%);width:auto;min-width:190px;max-width:40vw;padding:7px 16px!important;margin:0!important;border-radius:40px!important;background:#0b1b26dc!important;box-shadow:0 6px 24px #0006;justify-content:center;text-align:center;pointer-events:none}
+.player-strip .eyebrow,.player-strip .turn-hint,.player-strip #player-stats{display:none!important}
+.player-strip strong{font-size:clamp(12px,1.25vw,17px)!important;margin:0!important;white-space:nowrap}
+.arena-top{top:15px;left:14px;right:14px;z-index:3}
+.arena-top>span:first-child{display:none}
+#base-protection{position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:10px;white-space:nowrap}
+.team-label{top:14px!important;min-width:0!important;width:clamp(155px,17vw,255px)!important;padding:10px 13px!important;background:#0c202ce8!important;z-index:4}
+.team-label.blue{left:15px}.team-label.red{right:15px}
+.team-label small{font-size:9px}.team-label strong{font-size:clamp(13px,1.3vw,18px)!important}
+.team-label>span{font-size:10px}.team-label .active-skills{max-height:55px;overflow:hidden}
+.match-clock{top:58px!important;z-index:4}
+.match-clock small{display:none}.match-clock strong{font-size:clamp(19px,2vw,28px)}
+.arena-bottom{display:none}
+.learning-docks{position:fixed!important;z-index:24;left:50%!important;bottom:18px!important;top:auto!important;transform:translateX(-50%)!important;width:min(780px,calc(100vw - 32px))!important;height:auto!important;display:flex!important;flex-direction:column;pointer-events:none}
+.question-panel,.selection-dock{flex:none!important;min-height:0!important;max-height:min(55dvh,460px)!important;overflow:auto!important;padding:16px 20px!important;background:#102534f5!important;background-image:none!important;border:2px solid #7bb8bd!important;border-radius:18px!important;box-shadow:0 16px 50px #000a!important;pointer-events:auto}
+.question-panel[hidden],.selection-dock[hidden]{display:none!important}
+.question-panel h2{font-size:clamp(17px,2vw,24px)!important;margin:7px 0 5px!important;text-align:center}
+.question-panel>.eyebrow{display:block;text-align:center}
+.question-panel>small{font-size:10px}
+.question-options{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-top:10px}
+.question-options button{min-height:56px!important;font-size:clamp(14px,1.5vw,18px)!important;font-weight:700}
+#skill-cards{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}
+.skill-card{flex-direction:column!important;min-height:95px!important}
+#skill-notice{position:fixed;bottom:calc(15dvh + 12px);z-index:32}
+.app>footer{position:fixed;z-index:26;right:12px;bottom:12px;padding:0!important;pointer-events:none}
+.app>footer>div:first-child{display:none}
+.footer-actions{pointer-events:auto;gap:6px}
+.footer-actions button{background:#0c2435db;padding:9px 12px;font-size:11px}
+.tools{display:none}
+#result{position:fixed;inset:0;z-index:40}
+@media(max-width:700px){
+  .battle-layout,.battle-layout:has(.selection-dock:not([hidden])){min-height:360px}
+  .player-strip{top:7px;max-width:55vw;padding:5px 9px!important;min-width:0}
+  .player-strip strong{font-size:11px!important}
+  .team-label{top:43px!important;width:clamp(120px,32vw,180px)!important;padding:7px!important}
+  .team-label.blue{left:6px}.team-label.red{right:6px}
+  .team-label strong{font-size:12px!important}
+  .team-label>span{font-size:9px}
+  .match-clock{top:60px!important}
+  .match-clock strong{font-size:18px}
+  #base-protection{display:none}
+  .learning-docks{bottom:52px!important;width:calc(100vw - 16px)!important}
+  .question-panel,.selection-dock{padding:10px 12px!important;max-height:53dvh!important}
+  .question-panel h2{font-size:16px!important}
+  .question-options button{min-height:48px!important;font-size:14px!important}
+  #skill-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .app>footer{bottom:6px;right:6px}
+}
