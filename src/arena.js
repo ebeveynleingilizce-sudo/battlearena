@@ -14,7 +14,8 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   hillA:'decoration/nature/hill_single_A',hillC:'decoration/nature/hill_single_C',ridge:'decoration/nature/mountain_A_grass',
   fence:'buildings/neutral/fence_wood_straight',
   weaponrack:'decoration/props/weaponrack',target:'decoration/props/target',arrows:'decoration/props/bucket_arrows',
-  wheelbarrow:'decoration/props/wheelbarrow',lumber:'decoration/props/resource_lumber',stoneSupply:'decoration/props/resource_stone'
+  wheelbarrow:'decoration/props/wheelbarrow',lumber:'decoration/props/resource_lumber',stoneSupply:'decoration/props/resource_stone',
+  bridge:'buildings/neutral/building_bridge_A'
  };
  const models=Object.fromEntries(await Promise.all(Object.entries(paths).map(async ([key,path])=>[key,await assets.loadFile(`kingdom/${path}.gltf`)])));
  const extraPaths={shrub:'nature/plant_bushDetailed',shrubSmall:'nature/plant_bushSmall',grass:'nature/grass',fern:'nature/grass_leafs',purple:'nature/flower_purpleA',yellow:'nature/flower_yellowA',pathStone:'nature/path_stone',cart:'town/cart',
@@ -49,7 +50,7 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  // Seamless terrain instead of a raised, floating rectangular board.
  const ground=new THREE.Mesh(
    new THREE.PlaneGeometry(220,220),
-   new THREE.MeshStandardMaterial({color:0x647e67,roughness:1})
+   new THREE.MeshStandardMaterial({color:0x667c51,roughness:1})
  );
  ground.rotation.x=-Math.PI/2;
  ground.position.y=-.11;
@@ -61,8 +62,18 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
  clearing.moveTo(-11.6,-2.9);
  for(const [x,z] of [[-9.5,-3.65],[-6.4,-3.45],[-3.8,-2.9],[0,-3.2],[3.8,-2.9],[6.4,-3.45],[9.5,-3.65],[11.6,-2.9],[11.6,2.9],[9.5,3.65],[6.4,3.45],[3.8,2.9],[0,3.2],[-3.8,2.9],[-6.4,3.45],[-9.5,3.65],[-11.6,2.9]])clearing.lineTo(x,z);
  clearing.closePath();
- const road=mesh(new THREE.ShapeGeometry(clearing),0x9b9d75,0,-.095,0);
+ const road=mesh(new THREE.ShapeGeometry(clearing),0xb6a074,0,-.095,0);
  road.rotation.x=-Math.PI/2;road.castShadow=false;
+ // A continuous river ties foreground and distant scenery together. The bridge is
+ // decorative and spans the entire existing soldier corridor; navigation is unchanged.
+ const riverShape=new THREE.Shape();riverShape.moveTo(-1.3,-22);
+ for(const [x,z] of [[-2.2,-13],[-1.5,-7],[-1.15,-3],[-1.15,3],[-2.4,8],[-1.4,15],[-2,24],[1.3,24],[1.7,15],[.6,8],[1.15,3],[1.15,-3],[1.4,-7],[.6,-13],[1.6,-22]])riverShape.lineTo(x,z);
+ riverShape.closePath();const river=mesh(new THREE.ShapeGeometry(riverShape),0x4c9ead,0,-.075,0);
+ river.rotation.x=-Math.PI/2;river.castShadow=false;
+ const bridge=assets.instance(models.bridge,.6).root;
+ const bridgeSize=new THREE.Box3().setFromObject(bridge).getSize(new THREE.Vector3());
+ bridge.scale.x*=4.2/bridgeSize.x;bridge.scale.z*=7.8/bridgeSize.z;
+ bridge.position.set(0,-.32,0);scene.add(bridge);
  // Hand-composed mirrored groves: tall trees behind, low rocks at the clearing edge.
  // Model choices, positions and scale are intentional; no scattering RNG.
  const grove=[
@@ -87,33 +98,34 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
    ['ridge',1.35,16,-8,.5],['hillA',.85,8,-10,.8],['hillC',1,2,-11,.2],
    ['hillA',.7,14,8,.4],['hillC',.65,6,10,1.1],['ridge',1.1,18,3,.7]
   ])prop(key,height,side*x,z,side*angle,true);
-  const plantingBeds=[[2,-5.4],[5,-6.1],[8,-5.8],[12.5,-6.6],[14,2.7],[12,6.7],[8,6.2],[4,5.2],[1,7.5],[16,8.5]];
+  const plantingBeds=[[2.7,-6.5],[3.8,-7.8],[10.8,-8],[12.2,-8.6],[2.8,6.7],[4,7.8],[10.5,8.1],[12,8.8]];
   plantingBeds.forEach(([x,z],bed)=>{
    prop('shrub',.55+(bed%3)*.12,side*x,z,bed*.63,true);
    prop('shrubSmall',.36,side*(x+.8),z+.5,bed*.9,true);
-   for(let i=0;i<6;i++){
-    const angle=i*1.047+bed*.3,distance=.8+(i%3)*.3;
+   for(let i=0;i<4;i++){
+    const angle=i*1.57+bed*.3,distance=.6+(i%2)*.3;
     const px=side*(x+Math.cos(angle)*distance),pz=z+Math.sin(angle)*distance;
     prop(i%2?'grass':'fern',.19+(i%3)*.05,px,pz,angle,true);
     if(i===1||i===4)prop(bed%2?'purple':'yellow',.25,px+side*.18,pz+.12,angle,true);
    }
   });
   // Small frontier settlements flank the walls; the playable corridor stays clear.
-  prop(side===-1?'blueHome':'redHome',1.95,side*12.9,-2.5,side*Math.PI/2,true);
-  prop(side===-1?'blueWell':'redWell',.85,side*13.1,.5,0,true);
+  prop(side===-1?'blueHome':'redHome',1.7,side*11.9,-5.4,side*Math.PI/2,true);
+  prop(side===-1?'blueWell':'redWell',.75,side*10.2,-5.3,0,true);
   prop(side===-1?'blueFlag':'redFlag',1.5,side*6.1,-4.1,side*.2,true);
-  prop('tent',1.15,side*12.4,5.7,side*.45,true);
-  prop('cart',.85,side*14.1,4.6,side*.7,true);
-  for(const [x,z] of [[12.8,4.5],[13.3,4.9],[13.5,-1.3]])prop('barrel',.48,side*x,z,z*.2,true);
-  prop('crate',.43,side*12.2,4.7,.3,true);prop('sack',.42,side*12.6,4.3,.8,true);
+  prop('tent',1.15,side*9.1,5.4,side*Math.PI,true);
+  prop('tent',.95,side*11.3,5.7,side*Math.PI,true);
+  prop('cart',.7,side*11.5,4.6,Math.PI/2,true);
+  for(const [x,z] of [[10.2,4.9],[10.65,4.9],[10.4,5.3]])prop('barrel',.4,side*x,z,0,true);
+  prop('crate',.4,side*10.5,5.7,0,true);prop('sack',.34,side*10.9,5.7,.3,true);
   // Training and supply vignettes sit outside the combat corridor; decorative only.
-  prop('weaponrack',.95,side*12.8,6.7,side*.35,true);
-  prop('target',1.05,side*11.3,6.9,side*Math.PI/2,true);
-  prop('arrows',.42,side*11.8,6.6,0,true);
-  prop('wheelbarrow',.65,side*14.3,-1.3,side*.55,true);
-  prop('lumber',.48,side*13.9,-2.7,.3,true);
-  prop('stoneSupply',.42,side*14.8,-2.2,1,true);
-  for(const z of [-5.9,-7.6])prop('fence',.52,side*6.5,z,Math.PI/2,true);
+  prop('weaponrack',.8,side*7.7,5.8,0,true);
+  prop('target',.9,side*6.8,5.5,side*Math.PI/2,true);
+  prop('arrows',.35,side*7.2,5.8,0,true);
+  prop('wheelbarrow',.55,side*12.2,-4.3,Math.PI/2,true);
+  prop('lumber',.38,side*12.6,-4.6,0,true);
+  prop('stoneSupply',.34,side*13,-4.6,0,true);
+  for(const x of [7.3,8.9,10.5])prop('fence',.52,side*x,6.8,0,true);
   // Stone verges connect courts and settlements rather than adding decorative dead ends.
   for(const [x,z,angle] of [[3.1,-3.8,.08],[4.4,-3.95,.12],[5.7,-4.05,.12],[3.1,3.8,-.08],[4.4,3.95,-.12],[5.7,4.05,-.12],[12,-.2,Math.PI/2],[13,-.2,Math.PI/2]])prop('pathStone',.12,side*x,z,side*angle,true);
  }
@@ -137,8 +149,8 @@ export async function createArena(scene,assets,config=BATTLE_CONFIG){
   prop('gate',1.65,side*11.1,0,Math.PI/2);
   for(const z of [-2.8,2.8])prop('wall',1.15,side*11.1,z,Math.PI/2);
   prop('castleStairs',1.15,side*9.8,-3.5,side*Math.PI/2,true);
-  prop('castleDoor',1.15,side*13.6,-4.5,Math.PI/2,true);
-  for(const z of [-5.4,-6.25])prop('castleWall',1.15,side*13.6,z,0,true);
+  prop('castleDoor',1.15,side*13.3,-4.8,Math.PI/2,true);
+  for(const z of [-5.7,-6.55])prop('castleWall',1.15,side*13.3,z,0,true);
   prop('rockKit',.65,side*14.6,-3.6,.4,true);
   prop('rockKit',.45,side*5.5,5.2,1.2,true);
  }
