@@ -57,7 +57,9 @@ async function main() {
       maxX = Math.max(maxX, Math.abs(p.x));
       maxY = Math.max(maxY, Math.abs(p.y));
     }
-    const half = Math.max(maxY, maxX / aspect) * 1.08;
+    // Bring the battlefield closer on wide monitors; preserve the full arena on narrow screens.
+    const zoom = aspect >= 1.5 ? 0.94 : 1.04;
+    const half = Math.max(maxY, maxX / aspect) * zoom;
     camera.left = -half * aspect; camera.right = half * aspect;
     camera.top = half; camera.bottom = -half;
     camera.updateProjectionMatrix();
@@ -147,7 +149,7 @@ async function main() {
   renderer.setAnimationLoop(now => {
     const dt = Math.max(0, (now - previous) / 1000);
     previous = now;
-    const alpha = clock.advance(dt, () => { simulation.step(); view.consume(simulation.events); skillUI.consume(simulation.events); },
+    const alpha = clock.advance(dt, () => { simulation.step(); player.refresh(); view.consume(simulation.events); skillUI.consume(simulation.events); },
       () => simulation.status === 'running' && !view.lab.enabled);
     const visualDt = Math.min(dt, 0.1);
     if (simulation.status === 'finished') view.effects.clear();
